@@ -36,10 +36,12 @@ namespace DungeonGenerator
             hasLock = lockRoom;
         }
     }
-
     public class DungeonGenerator : MonoBehaviour
     {
         public static DungeonGenerator Instance;
+        [Range(3, 100)]public int nbOfRoomsClamp = 5;
+        [Range(0, 9999)] public int difficultyBudget = 10;
+        public RectInt maxLevelSize;
         public static void ConnectRoom(Room roomFrom, Room roomTo)
         {
             roomFrom.Connections.Add(new Connection(roomTo, false));
@@ -54,6 +56,12 @@ namespace DungeonGenerator
             //TODO : Implement Dungeon Generation
             //return true if dungeon is final
             return true;
+        }
+        void OnDrawGizmosSelected()
+        {
+            // Draw a semitransparent blue cube at the transforms position
+            Gizmos.color = new Color(0, 1, 0, 0.22f);
+            Gizmos.DrawCube(new Vector3(maxLevelSize.position.x, maxLevelSize.position.y, 0), new Vector3(maxLevelSize.size.x, maxLevelSize.size.y, float.Epsilon));
         }
         void Awake()
         {

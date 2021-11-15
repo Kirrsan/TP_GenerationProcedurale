@@ -318,6 +318,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f48439e68e889a742a60ccf773adf467, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  nbOfRoomsClamp: 3
+  difficultyBudget: 0
+  maxLevelSize:
+    x: 0
+    y: 0
+    width: 441
+    height: 200
 --- !u!4 &649083921
 Transform:
   m_ObjectHideFlags: 0
