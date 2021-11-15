@@ -88,6 +88,8 @@ public class Player : MonoBehaviour {
 	private Room _room = null;
 	public Room Room { get { return _room; } }
 
+    private int _playerPoint;
+
 
 	// Use this for initialization
 	private void Awake () {
@@ -239,11 +241,13 @@ public class Player : MonoBehaviour {
             return;
         _lastHitTime = Time.time;
 
-        life -= (attack != null ? attack.damages : 1);
-        if (life <= 0)
+        //reduces points by the amount of damage
+        SpendPoints(attack != null ? attack.damages : 1);
+        if (_playerPoint <= 0)
         {
             SetState(STATE.DEAD);
-        } else {
+        } else
+        {
             if (attack != null && attack.knockbackDuration > 0.0f)
             {
                 StartCoroutine(ApplyKnockBackCoroutine(attack.knockbackDuration, attack.transform.right * attack.knockbackSpeed));
@@ -251,6 +255,24 @@ public class Player : MonoBehaviour {
             EndBlink();
             _blinkCoroutine = StartCoroutine(BlinkCoroutine());
         }
+
+
+        //********OLD LIFE BEHAVIOUR*********
+
+        //life -= (attack != null ? attack.damages : 1);
+        //if (life <= 0)
+        //{
+        //    SetState(STATE.DEAD);
+        //} else {
+        //    if (attack != null && attack.knockbackDuration > 0.0f)
+        //    {
+        //        StartCoroutine(ApplyKnockBackCoroutine(attack.knockbackDuration, attack.transform.right * attack.knockbackSpeed));
+        //    }
+        //    EndBlink();
+        //    _blinkCoroutine = StartCoroutine(BlinkCoroutine());
+        //}
+
+        //**************************************
     }
 
     // ApplyKnockBackCoroutine puts player in STUNNED state and sets a velocity to knockback player. It resume to IDLE state after a fixed duration. STUNNED state has his own movement parameters that allow to redefine frictions when character is knocked.
@@ -315,6 +337,29 @@ public class Player : MonoBehaviour {
 	{
 		_room = room;
 	}
+
+    public void SpendPoints(int pointsToSpend)
+    {
+        _playerPoint -= pointsToSpend;
+    }
+
+    public bool SpendPointsSafely(int pointsToSpend)
+    {
+        if(_playerPoint - pointsToSpend < 0)
+        {
+            //cannot spend points behaviour to launch when returned false
+            return false;
+        }
+
+        _playerPoint -= pointsToSpend;
+        return true;
+    }
+
+    public void AddPoints(int pointsToAdd)
+    {
+        _playerPoint += pointsToAdd;
+    }
+
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
