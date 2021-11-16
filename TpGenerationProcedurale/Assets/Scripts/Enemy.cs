@@ -81,6 +81,9 @@ public class Enemy : MonoBehaviour
 
 	public static List<Enemy> allEnemies = new List<Enemy>();
 
+
+    public int PointToGive = 1;
+
     // Use this for initialization
     private void Awake()
     {
@@ -173,7 +176,11 @@ public class Enemy : MonoBehaviour
 		switch (_state)
         {
             case STATE.STUNNED: _currentMovement = stunnedMovement; break;
-            case STATE.DEAD: EndBlink(); Destroy(gameObject); break;
+            case STATE.DEAD: 
+                EndBlink();
+                Player.Instance.AddPoints(PointToGive);
+                Destroy(gameObject); 
+                break;
             default: _currentMovement = defaultMovement; break;
         }
 

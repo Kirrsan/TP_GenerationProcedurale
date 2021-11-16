@@ -89,6 +89,7 @@ public class Player : MonoBehaviour {
 	public Room Room { get { return _room; } }
 
     private int _playerPoint;
+    public int startPoints = 3;
 
 
 	// Use this for initialization
@@ -101,6 +102,8 @@ public class Player : MonoBehaviour {
     private void Start()
     {
         SetState(STATE.IDLE);
+        _playerPoint = startPoints;
+        life = _playerPoint;
     }
 
     // Update is called once per frame
@@ -231,7 +234,8 @@ public class Player : MonoBehaviour {
 
         // transform used for spawn is attackSpawnPoint.transform if attackSpawnPoint is not null. Else it's transform.
         Transform spawnTransform = attackSpawnPoint ? attackSpawnPoint.transform : transform;
-        GameObject.Instantiate(attackPrefab, spawnTransform.position, spawnTransform.rotation);
+        Attack playerAttackScript = GameObject.Instantiate(attackPrefab, spawnTransform.position, spawnTransform.rotation).GetComponent<Attack>();
+        playerAttackScript.damages = _playerPoint;
     }
 
     // Applyhit is called when player touches an enemy hitbox or any hazard.
@@ -243,7 +247,7 @@ public class Player : MonoBehaviour {
 
         //reduces points by the amount of damage
         SpendPoints(attack != null ? attack.damages : 1);
-        if (_playerPoint <= 0)
+        if (life <= 0)
         {
             SetState(STATE.DEAD);
         } else
@@ -255,24 +259,6 @@ public class Player : MonoBehaviour {
             EndBlink();
             _blinkCoroutine = StartCoroutine(BlinkCoroutine());
         }
-
-
-        //********OLD LIFE BEHAVIOUR*********
-
-        //life -= (attack != null ? attack.damages : 1);
-        //if (life <= 0)
-        //{
-        //    SetState(STATE.DEAD);
-        //} else {
-        //    if (attack != null && attack.knockbackDuration > 0.0f)
-        //    {
-        //        StartCoroutine(ApplyKnockBackCoroutine(attack.knockbackDuration, attack.transform.right * attack.knockbackSpeed));
-        //    }
-        //    EndBlink();
-        //    _blinkCoroutine = StartCoroutine(BlinkCoroutine());
-        //}
-
-        //**************************************
     }
 
     // ApplyKnockBackCoroutine puts player in STUNNED state and sets a velocity to knockback player. It resume to IDLE state after a fixed duration. STUNNED state has his own movement parameters that allow to redefine frictions when character is knocked.
@@ -338,26 +324,50 @@ public class Player : MonoBehaviour {
 		_room = room;
 	}
 
+    public int GetPoint()
+    {
+        return _playerPoint;
+    }
+
+    public void SetLifeToPoint()
+    {
+        life = _playerPoint;
+    }
+
     public void SpendPoints(int pointsToSpend)
     {
         _playerPoint -= pointsToSpend;
+        SetLifeToPoint();
     }
 
-    public bool SpendPointsSafely(int pointsToSpend)
+    public void SpendPointsToMin1Hp(int pointsToSpend)
     {
         if(_playerPoint - pointsToSpend < 0)
+        {
+            _playerPoint = 1;
+            return;
+        }
+        _playerPoint -= pointsToSpend;
+        SetLifeToPoint();
+    }
+
+    public bool SpendPointsBlock(int pointsToSpend)
+    {
+        if(_playerPoint - pointsToSpend <= 0)
         {
             //cannot spend points behaviour to launch when returned false
             return false;
         }
 
         _playerPoint -= pointsToSpend;
+        SetLifeToPoint();
         return true;
     }
 
     public void AddPoints(int pointsToAdd)
     {
         _playerPoint += pointsToAdd;
+        life += _playerPoint;
     }
 
 
