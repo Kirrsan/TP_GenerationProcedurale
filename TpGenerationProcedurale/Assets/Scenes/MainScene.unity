@@ -318,8 +318,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f48439e68e889a742a60ccf773adf467, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  nbOfRoomsClamp: 3
-  difficultyBudget: 0
+  nbOfRoomsClamp: 5
+  difficultyBudget: 20
+  extraTriesClamp: 10
+  ROOMSIZE: {x: 100, y: 100}
   maxLevelSize:
     x: 0
     y: 0
