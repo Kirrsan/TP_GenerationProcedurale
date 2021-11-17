@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using Unity.Collections;
 using UnityEngine;
-
+using UnityEngine.UI;
 
 /// <summary>
 /// Enemy component. Manages inputs, character states and associated game flow.
@@ -82,7 +82,12 @@ public class Enemy : MonoBehaviour
 	public static List<Enemy> allEnemies = new List<Enemy>();
 
 
+    //TODO gérer les dégats et le comportement de la vie avec les points aussi, en attente des gds
+    [Header("Points")]
     public int PointToGive = 1;
+    public int CreaturesPoints = 5;
+    public Text CreaturePointText;
+
 
     // Use this for initialization
     private void Awake()
@@ -90,8 +95,9 @@ public class Enemy : MonoBehaviour
         _body = GetComponent<Rigidbody2D>();
         GetComponentsInChildren<SpriteRenderer>(true, _spriteRenderers);
 		allEnemies.Add(this);
+        CreaturePointText.text = CreaturesPoints.ToString();
 
-	}
+    }
 
 	private void OnDestroy()
 	{

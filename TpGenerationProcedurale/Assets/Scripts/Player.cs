@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Unity.Collections;
 using UnityEngine;
+using UnityEngine.UI;
 
 
 /// <summary>
@@ -88,12 +89,15 @@ public class Player : MonoBehaviour {
 	private Room _room = null;
 	public Room Room { get { return _room; } }
 
-    private int _playerPoint;
+    [Header("Points")]
     public int startPoints = 3;
+    public Text scoreText;
+
+    private int _playerPoint;
 
 
-	// Use this for initialization
-	private void Awake () {
+    // Use this for initialization
+    private void Awake () {
         Instance = this;
         _body = GetComponent<Rigidbody2D>();
         GetComponentsInChildren<SpriteRenderer>(true, _spriteRenderers);
@@ -104,6 +108,8 @@ public class Player : MonoBehaviour {
         SetState(STATE.IDLE);
         _playerPoint = startPoints;
         life = _playerPoint;
+        scoreText.text = _playerPoint.ToString();
+        Hud.Instance.SetSliderValuesToPointsValues(_playerPoint);
     }
 
     // Update is called once per frame
@@ -246,7 +252,7 @@ public class Player : MonoBehaviour {
         _lastHitTime = Time.time;
 
         //reduces points by the amount of damage
-        SpendPoints(attack != null ? attack.damages : 1);
+        life -= attack != null ? attack.damages : 1;
         if (life <= 0)
         {
             SetState(STATE.DEAD);
@@ -331,13 +337,22 @@ public class Player : MonoBehaviour {
 
     public void SetLifeToPoint()
     {
-        life = _playerPoint;
+        if(life > _playerPoint)
+        {
+            life = _playerPoint;
+        }
+        if(life <= 0)
+        {
+            SetState(STATE.DEAD);
+        }
     }
 
     public void SpendPoints(int pointsToSpend)
     {
         _playerPoint -= pointsToSpend;
         SetLifeToPoint();
+        scoreText.text = _playerPoint.ToString();
+        Hud.Instance.SetSliderValuesToPointsValues(_playerPoint);
     }
 
     public void SpendPointsToMin1Hp(int pointsToSpend)
@@ -345,10 +360,14 @@ public class Player : MonoBehaviour {
         if(_playerPoint - pointsToSpend < 0)
         {
             _playerPoint = 1;
-            return;
         }
-        _playerPoint -= pointsToSpend;
+        else
+        {
+            _playerPoint -= pointsToSpend;
+        }
         SetLifeToPoint();
+        scoreText.text = _playerPoint.ToString();
+        Hud.Instance.SetSliderValuesToPointsValues(_playerPoint);
     }
 
     public bool SpendPointsBlock(int pointsToSpend)
@@ -361,13 +380,17 @@ public class Player : MonoBehaviour {
 
         _playerPoint -= pointsToSpend;
         SetLifeToPoint();
+        scoreText.text = _playerPoint.ToString();
+        Hud.Instance.SetSliderValuesToPointsValues(_playerPoint);
         return true;
     }
 
     public void AddPoints(int pointsToAdd)
     {
         _playerPoint += pointsToAdd;
-        life += _playerPoint;
+        life += pointsToAdd;
+        scoreText.text = _playerPoint.ToString();
+        Hud.Instance.SetSliderValuesToPointsValues(_playerPoint);
     }
 
 

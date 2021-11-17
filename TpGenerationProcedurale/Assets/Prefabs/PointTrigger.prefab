@@ -267,3 +267,4 @@ MonoBehaviour:
   removeSprite: {fileID: 1468579293048736553}
   triggerPointState: 1
   triggerPointValue: 0
+  isUnique: 1
