@@ -445,7 +445,7 @@ MonoBehaviour:
   defaultMovement:
     speedMax: 3
     acceleration: 15
-    friction: 15
+    friction: 100
   stunnedMovement:
     speedMax: 2
     acceleration: 12

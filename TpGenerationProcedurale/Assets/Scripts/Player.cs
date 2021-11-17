@@ -96,6 +96,12 @@ public class Player : MonoBehaviour {
     private int _playerPoint;
 
 
+    //multiplier
+    private float attackMultiplier = 0;
+    private float defenseMultiplier = 0;
+    private float speedMultiplier = 0;
+
+
     // Use this for initialization
     private void Awake () {
         Instance = this;
@@ -209,7 +215,7 @@ public class Player : MonoBehaviour {
         {
             // If direction magnitude > 0, Accelerate in direction, then clamp velocity to max speed. Do not apply friction if character is moving toward a direction.
             _body.velocity += _direction * _currentMovement.acceleration * Time.fixedDeltaTime;
-            _body.velocity = Vector2.ClampMagnitude(_body.velocity, _currentMovement.speedMax);
+            _body.velocity = Vector2.ClampMagnitude(_body.velocity, _currentMovement.speedMax + _currentMovement.speedMax * speedMultiplier);
             transform.eulerAngles = new Vector3(0.0f, 0.0f, ComputeOrientationAngle(_direction));
         } else {
             // If direction magnitude == 0, Apply friction
@@ -241,7 +247,8 @@ public class Player : MonoBehaviour {
         // transform used for spawn is attackSpawnPoint.transform if attackSpawnPoint is not null. Else it's transform.
         Transform spawnTransform = attackSpawnPoint ? attackSpawnPoint.transform : transform;
         Attack playerAttackScript = GameObject.Instantiate(attackPrefab, spawnTransform.position, spawnTransform.rotation).GetComponent<Attack>();
-        playerAttackScript.damages = _playerPoint;
+        playerAttackScript.damages = _playerPoint + Mathf.FloorToInt(playerAttackScript.damages * attackMultiplier);
+        playerAttackScript.damages += Mathf.FloorToInt(playerAttackScript.damages * attackMultiplier);
     }
 
     // Applyhit is called when player touches an enemy hitbox or any hazard.
@@ -253,6 +260,9 @@ public class Player : MonoBehaviour {
 
         //reduces points by the amount of damage
         life -= attack != null ? attack.damages : 1;
+
+        //see how defense works
+
         if (life <= 0)
         {
             SetState(STATE.DEAD);
@@ -391,6 +401,21 @@ public class Player : MonoBehaviour {
         life += pointsToAdd;
         scoreText.text = _playerPoint.ToString();
         Hud.Instance.SetSliderValuesToPointsValues(_playerPoint);
+    }
+
+    public void AddToAttackMultiplier(float multiplierToAdd)
+    {
+        attackMultiplier += multiplierToAdd;
+    }
+
+    public void AddToDefenseMultiplier(float multiplierToAdd)
+    {
+        defenseMultiplier += multiplierToAdd;
+    }    
+    
+    public void AddToSpeedMultiplier(float multiplierToAdd)
+    {
+        speedMultiplier += multiplierToAdd;
     }
 
 
