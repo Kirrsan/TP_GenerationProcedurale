@@ -54,7 +54,7 @@ namespace DungeonGenerator
 
     public class DungeonGenerator : MonoBehaviour
     {
-        public static DungeonGenerator Instance;
+        public static DungeonGenerator Instance { get; private set; }
         [Range(3, 100)] public int nbOfRoomsClamp = 5;
         [Range(0, 9999)] public int difficultyBudget = 10;
         [Header("System")] public int extraTriesClamp = 10;
@@ -100,9 +100,9 @@ namespace DungeonGenerator
         {
             int safetyNet = 0;
             Connection.Direction direction = DungeonGenerator.RandomDirection;
-            while(!DirectionIsValid(roomFrom, direction) && safetyNet < 6)
+            while (!DirectionIsValid(roomFrom, direction) && safetyNet < 6)
             {
-                if(direction == Connection.Direction.West)
+                if (direction == Connection.Direction.West)
                     direction = Connection.Direction.North;
                 else
                     direction++;
@@ -115,13 +115,16 @@ namespace DungeonGenerator
         {
             return new Room(startPos, Room.RoomType.Start, 0);
         }
+        static int NbOfSpawn(Room.RoomType type)
+        {
+            return rooms.FindAll(r => r.Value.Type == type).Count;
+        }
         static Connection BuildAdjacentRoom(Room roomFrom, Connection.Direction direction, Room.RoomType type = Room.RoomType.Default, bool hasLock = false)
         {
             switch (direction)
             {
                 case Connection.Direction.North:
                     {
-
                         Connection connection = new Connection(direction, new Room(new Vector2(roomFrom.Position.x, roomFrom.Position.y + Instance.ROOMSIZE.y), type, 0), hasLock);
                         roomFrom.Connections.Add(connection);
                         return connection;
@@ -148,12 +151,121 @@ namespace DungeonGenerator
                     throw new System.NotImplementedException("Direction not supported");
             }
         }
+        static bool CheckAdjacentRoom(Room roomToProbe)
+        {
+            return rooms.Find(r =>
+            r.Value.Position == roomToProbe.Position + new Vector2(Instance.ROOMSIZE.x, 0) ||
+            r.Value.Position == roomToProbe.Position - new Vector2(Instance.ROOMSIZE.x, 0) ||
+            r.Value.Position == roomToProbe.Position + new Vector2(0, Instance.ROOMSIZE.y) ||
+            r.Value.Position == roomToProbe.Position - new Vector2(0, Instance.ROOMSIZE.y)) != null;
+        }
+        static bool CheckAdjacentRoom(Room roomToProbe, Room.RoomType type)
+        {
+            return rooms.Find(r =>
+            (r.Value.Position == roomToProbe.Position + new Vector2(Instance.ROOMSIZE.x, 0) && r.Value.Type == type) ||
+            (r.Value.Position == roomToProbe.Position - new Vector2(Instance.ROOMSIZE.x, 0) && r.Value.Type == type) ||
+            (r.Value.Position == roomToProbe.Position + new Vector2(0, Instance.ROOMSIZE.y) && r.Value.Type == type) ||
+            (r.Value.Position == roomToProbe.Position - new Vector2(0, Instance.ROOMSIZE.y) && r.Value.Type == type)) != null;
+        }
+        static bool BuildSecondaryPath(ref Room roomStart, ref Room roomTarget, int roomBudget)
+        {
+            //check if the budget is big enough
+            if (//Maximum diagonal distance achievable with the allocated budget
+                Vector2.Distance(new Room(Vector2.zero, Room.RoomType.NULL, 0).Position, new Room(Vector2.one * Instance.ROOMSIZE, Room.RoomType.NULL, 0).Position) * roomBudget
+                <
+                //Diagonal distance between the begining of the room and the target room
+                Vector2.Distance(roomStart.Position, roomTarget.Position) || roomBudget <= 0) return false;
+            //Begin algo
+            int remainingBudget = roomBudget;
+            Room? previousRoom;
+            Room? latestSpawnedRoom = roomStart;
+            bool latestSpawnedRoomIsYAxis = false;
+            float yDistance = roomTarget.Position.y - roomStart.Position.y;
+            //1 is north, 0 is equal, -1 is south
+            int targetYAxis = 0;
+            float xDistance = roomTarget.Position.x - roomStart.Position.x;
+            //1 is East, 0 is equal, -1 is West
+            int targetXAxis = 0;
+            int safetyNet = remainingBudget * 2;
+            while (remainingBudget > 0 && safetyNet > 0)
+            {
+                //update relevant values
+                safetyNet--;
+                previousRoom = latestSpawnedRoom;
+                yDistance = roomTarget.Position.y - previousRoom.Value.Position.y;
+                xDistance = roomTarget.Position.x - previousRoom.Value.Position.x;
+                if (yDistance > 0)
+                    targetYAxis = (int)Mathf.Clamp(Mathf.Ceil(yDistance), -1, 1);
+                else if (yDistance < 0)
+                    targetYAxis = (int)Mathf.Clamp(Mathf.Floor(yDistance), -1, 1);
+                if (xDistance > 0)
+                    targetXAxis = (int)Mathf.Clamp(Mathf.Ceil(xDistance), -1, 1);
+                else if (xDistance < 0)
+                    targetXAxis = (int)Mathf.Clamp(Mathf.Floor(xDistance), -1, 1);
+                if (CheckAdjacentRoom(latestSpawnedRoom.Value, Room.RoomType.End)) break;
+                if (latestSpawnedRoomIsYAxis)
+                {
+                    switch (targetXAxis)
+                    {
+                        case 0:
+                            continue;
+                        case 1:
+                            {
+                                Connection con = BuildAdjacentRoom(latestSpawnedRoom.Value, Connection.Direction.East);
+                                connections.Add(con);
+                                rooms.Add(con.DestinationRoom);
+                                latestSpawnedRoom = con.DestinationRoom;
+                                break;
+                            }
+                        case -1:
+                            {
+                                Connection con = BuildAdjacentRoom(latestSpawnedRoom.Value, Connection.Direction.West);
+                                connections.Add(con);
+                                rooms.Add(con.DestinationRoom);
+                                latestSpawnedRoom = con.DestinationRoom;
+                                break;
+                            }
+                    }
+                    latestSpawnedRoomIsYAxis = false;
+                    //Spawn room on x axis
+                }
+                else
+                {
+                    switch (targetYAxis)
+                    {
+                        case 0:
+                            continue;
+                        case 1:
+                            {
+                                Connection con = BuildAdjacentRoom(latestSpawnedRoom.Value, Connection.Direction.North);
+                                connections.Add(con);
+                                rooms.Add(con.DestinationRoom);
+                                latestSpawnedRoom = con.DestinationRoom;
+                                break;
+                            }
+                        case -1:
+                            {
+                                Connection con = BuildAdjacentRoom(latestSpawnedRoom.Value, Connection.Direction.South);
+                                connections.Add(con);
+                                rooms.Add(con.DestinationRoom);
+                                latestSpawnedRoom = con.DestinationRoom;
+                                break;
+                            }
+                    }
+                    //Spawn room on y axis
+                    latestSpawnedRoomIsYAxis = true;
+                }
+                remainingBudget--;
+            }
+            return true;
+        }
         static bool GenerateDungeonLoop()
         {
             rooms.Clear();
             connections.Clear();
             Vector2 startPosition = Vector2.zero;
             int roomsSpawned = 0;
+            int mainRouteBudget = Instance.nbOfRoomsClamp;
             Connection.Direction latestDirection = Connection.Direction.NULL;
             Room? previousRoom;
             Room? lastestSpawnedRoom = null;
@@ -161,9 +273,10 @@ namespace DungeonGenerator
             bool startingRoomSpawned = false;
             bool endRoomSpawned = false;
 
-            //TODO : Implement Dungeon Generation
-            while (roomsSpawned < Instance.nbOfRoomsClamp)
+            //Main Route Loop
+            while (roomsSpawned < mainRouteBudget)
             {
+                //Update relevant values
                 previousRoom = lastestSpawnedRoom;
 
                 if (!startingRoomSpawned)
@@ -194,6 +307,10 @@ namespace DungeonGenerator
                     roomsSpawned++;
                 }
             }
+
+            //TODO : Use AltRoute generation
+            //BuildSecondaryPath(ref startRoom, ref endRoom, 50);
+
             //return true if all prerequisites are filled
             if (startingRoomSpawned && endRoomSpawned)
                 return true;
@@ -215,20 +332,19 @@ namespace DungeonGenerator
         }
         // Start is called before the first frame update
         void Start()
-        {
-            for(int i = 0; i < 5 ; i++)
-            {
-                int nbOfExtraTries = 0;
-                while (nbOfExtraTries < extraTriesClamp && !GenerateDungeonLoop())
-                    nbOfExtraTries++;
+        { 
+            int nbOfExtraTries = 0;
+            while (nbOfExtraTries < extraTriesClamp && !GenerateDungeonLoop())
+                nbOfExtraTries++;
 #if UNITY_EDITOR
-                Debug.Log("Number of extra tries needed to generate dungeon : " + nbOfExtraTries);
-                string mapstring = "Map :" + "\n";
-                foreach (Room room in rooms)
-                    mapstring += "I am a " + room.Type + " room at " + room.Position + ", Difficulty : " + room.Difficulty + "\n";
-                Debug.Log(mapstring);
+            Debug.Log("Number of extra tries needed to generate dungeon : " + nbOfExtraTries);
+            string mapstring = "Map :" + "\n";
+            foreach (Room room in rooms)
+                mapstring += "I am a " + room.Type + " room at " + room.Position + ", Difficulty : " + room.Difficulty + "\n";
+            Debug.Log(mapstring);
+            UnityEditor.EditorApplication.isPlaying = false;
 #endif
-            }
+            Application.Quit();
         }
         // Update is called once per frame
         void Update()
