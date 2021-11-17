@@ -51,6 +51,7 @@ namespace DungeonGenerator
             hasLock = lockRoom;
         }
     }
+
     public class DungeonGenerator : MonoBehaviour
     {
         public static DungeonGenerator Instance;
@@ -61,7 +62,6 @@ namespace DungeonGenerator
         public RectInt maxLevelSize;
         static List<Room?> rooms = new List<Room?>();
         static List<Connection?> connections = new List<Connection?>();
-
         static Connection.Direction RandomDirection
         {
             get => (Connection.Direction)Random.Range(0, 4);
@@ -148,7 +148,7 @@ namespace DungeonGenerator
                     throw new System.NotImplementedException("Direction not supported");
             }
         }
-        public static bool GenerateDungeonLoop()
+        static bool GenerateDungeonLoop()
         {
             rooms.Clear();
             connections.Clear();
@@ -230,13 +230,10 @@ namespace DungeonGenerator
 #endif
             }
         }
-
         // Update is called once per frame
         void Update()
         {
 
         }
-
     }
-
 }
