@@ -318,11 +318,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f48439e68e889a742a60ccf773adf467, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  nbOfRoomsClamp: 5
+  nbOfRoomsClamp: 2500
   difficultyBudget: 20
   extraTriesClamp: 10
   roomPrefab:
   - {fileID: 3792475177106313155, guid: dbd176034832ebe4ead5140341ea30dc, type: 3}
+  - {fileID: 1885995621766886527, guid: aa1cb305f74755044ad9d3d041bbd224, type: 3}
+  - {fileID: 3792475177106313155, guid: dbd176034832ebe4ead5140341ea30dc, type: 3}
+  - {fileID: 3792475177106313155, guid: dbd176034832ebe4ead5140341ea30dc, type: 3}
+  - {fileID: 3792475177106313155, guid: dbd176034832ebe4ead5140341ea30dc, type: 3}
+  - {fileID: 3792475177106313155, guid: dbd176034832ebe4ead5140341ea30dc, type: 3}
+  - {fileID: 3792475177106313155, guid: dbd176034832ebe4ead5140341ea30dc, type: 3}
+  - {fileID: 7559102900497746808, guid: 8b0062dcb6a669d4692dbde3a5387136, type: 3}
+  - {fileID: 7559102900497746808, guid: 8b0062dcb6a669d4692dbde3a5387136, type: 3}
   ROOMSIZE: {x: 11, y: 9}
   maxLevelSize:
     x: 0

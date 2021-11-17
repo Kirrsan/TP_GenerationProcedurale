@@ -63,7 +63,7 @@ namespace DungeonGenerator
     public class DungeonGenerator : MonoBehaviour
     {
         public static DungeonGenerator Instance { get; private set; }
-        [Range(3, 1000)] public int nbOfRoomsClamp = 5;
+        [Range(3, 2500)] public int nbOfRoomsClamp = 5;
         [Range(0, 9999)] public int difficultyBudget = 10;
         [Header("System")] public int extraTriesClamp = 10;
         public List<GameObject> roomPrefab = new List<GameObject>();
