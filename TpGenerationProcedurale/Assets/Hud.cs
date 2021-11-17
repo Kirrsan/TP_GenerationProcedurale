@@ -10,6 +10,8 @@ public class Hud : MonoBehaviour
     public RectTransform heartBar;
     public GameObject heartPrefab;
 
+    public Slider healthSlider;
+
     private void Awake()
     {
         Instance = this;
@@ -19,13 +21,26 @@ public class Hud : MonoBehaviour
     {
         if (Player.Instance == null)
             return;
-        while(Player.Instance.life > heartBar.childCount) {
-            AddHearth();
-        }
-        while (Player.Instance.life < heartBar.childCount) {
-            RemoveHearth();
-        }
+
+        if (healthSlider.value == Player.Instance.life) { return; }
+
+        healthSlider.value = Player.Instance.life;
+
+        //while (heartBar.childCount > 0 && heartBar.childCount > Player.Instance.life)
+        //{
+        //    AddHearth();
+        //}
+        //while (Player.Instance.life < heartBar.childCount) {
+        //    RemoveHearth();
+        //}
     }
+
+    public void SetSliderValuesToPointsValues(int pointValue)
+    {
+        healthSlider.maxValue = pointValue;
+    }
+
+
 
     public void AddHearth()
     {
