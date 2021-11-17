@@ -321,7 +321,9 @@ MonoBehaviour:
   nbOfRoomsClamp: 5
   difficultyBudget: 20
   extraTriesClamp: 10
-  ROOMSIZE: {x: 100, y: 100}
+  roomPrefab:
+  - {fileID: 3792475177106313155, guid: dbd176034832ebe4ead5140341ea30dc, type: 3}
+  ROOMSIZE: {x: 11, y: 9}
   maxLevelSize:
     x: 0
     y: 0
