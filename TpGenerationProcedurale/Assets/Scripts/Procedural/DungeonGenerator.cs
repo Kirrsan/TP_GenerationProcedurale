@@ -179,7 +179,7 @@ namespace DungeonGenerator
                     }
                 case ConnectionNode.Orientation.South:
                     {
-                        ConnectionNode connection = new ConnectionNode(Orientation, roomFrom, new RoomNode(new Vector2Int(roomFrom.Position.x, roomFrom.Position.y - Instance.ROOMSIZE.y), type, 0), hasLock,
+                        ConnectionNode connection = new ConnectionNode(Orientation, roomFrom, new RoomNode(new Vector2Int(roomFrom.Position.x, roomFrom.Position.y - Instance.ROOMSIZE.y), type, 0, isPrimary), hasLock,
                             cost,
                             type == RoomNode.RoomType.Secret
                             );
@@ -189,7 +189,7 @@ namespace DungeonGenerator
                     }
                 case ConnectionNode.Orientation.West:
                     {
-                        ConnectionNode connection = new ConnectionNode(Orientation, roomFrom, new RoomNode(new Vector2Int(roomFrom.Position.x - Instance.ROOMSIZE.x, roomFrom.Position.y), type, 0), hasLock,
+                        ConnectionNode connection = new ConnectionNode(Orientation, roomFrom, new RoomNode(new Vector2Int(roomFrom.Position.x - Instance.ROOMSIZE.x, roomFrom.Position.y), type, 0, isPrimary), hasLock,
                             cost,
                             type == RoomNode.RoomType.Secret
                             );
@@ -199,7 +199,7 @@ namespace DungeonGenerator
                     }
                 case ConnectionNode.Orientation.East:
                     {
-                        ConnectionNode connection = new ConnectionNode(Orientation, roomFrom, new RoomNode(new Vector2Int(roomFrom.Position.x + Instance.ROOMSIZE.x, roomFrom.Position.y), type, 0), hasLock,
+                        ConnectionNode connection = new ConnectionNode(Orientation, roomFrom, new RoomNode(new Vector2Int(roomFrom.Position.x + Instance.ROOMSIZE.x, roomFrom.Position.y), type, 0, isPrimary), hasLock,
                             cost,
                             type == RoomNode.RoomType.Secret
                             );
