@@ -56,6 +56,15 @@ namespace DungeonGenerator
         public int OpeningCost { get; set; }
         public bool HasLock { get; set; }
         public bool IsSecret { get; set; }
+        public ConnectionNode(Orientation direction, RoomNode origin, RoomNode destination, bool locked, int openingCost, bool secretRoom = false)
+        {
+            Direction = direction;
+            OriginRoom = origin;
+            DestinationRoom = destination;
+            HasLock = locked;
+            IsSecret = secretRoom;
+            OpeningCost = openingCost;
+        }
         public ConnectionNode(Orientation direction, RoomNode origin, RoomNode destination, bool secretRoom = false)
         {
             Direction = direction;
@@ -66,15 +75,7 @@ namespace DungeonGenerator
             OpeningCost = 0;
         }
 
-        public ConnectionNode(Orientation direction, RoomNode origin, RoomNode destination, bool locked, int openingCost, bool secretRoom = false)
-        {
-            Direction = direction;
-            OriginRoom = origin;
-            DestinationRoom = destination;
-            HasLock = locked;
-            IsSecret = secretRoom;
-            OpeningCost = openingCost;
-        }
+        
     }
     public class DungeonGenerator : MonoBehaviour
     {
@@ -138,7 +139,7 @@ namespace DungeonGenerator
         }
         static RoomNode SpawnStartRoom(Vector2Int startPos)
         {
-            return new RoomNode(startPos, RoomNode.RoomType.Start, 0, true);
+            return new RoomNode(startPos, RoomNode.RoomType.Start, 0);
         }
         static int NbOfSpawn(RoomNode.RoomType type)
         {
@@ -158,33 +159,37 @@ namespace DungeonGenerator
                             type == RoomNode.RoomType.Secret
                             );
                         roomFrom.Connections.Add(connection);
+                        connection.DestinationRoom.Connections.Add(new ConnectionNode(ConnectionNode.Orientation.South, connection.DestinationRoom, roomFrom, hasLock, cost, type == RoomNode.RoomType.Secret));
                         return connection;
                     }
                 case ConnectionNode.Orientation.South:
                     {
-                        ConnectionNode connection = new ConnectionNode(Orientation, roomFrom, new RoomNode(new Vector2Int(roomFrom.Position.x, roomFrom.Position.y - Instance.ROOMSIZE.y), type, 0, isPrimary), hasLock,
+                        ConnectionNode connection = new ConnectionNode(Orientation, roomFrom, new RoomNode(new Vector2Int(roomFrom.Position.x, roomFrom.Position.y - Instance.ROOMSIZE.y), type, 0), hasLock,
                             cost,
                             type == RoomNode.RoomType.Secret
                             );
                         roomFrom.Connections.Add(connection);
+                        connection.DestinationRoom.Connections.Add(new ConnectionNode(ConnectionNode.Orientation.North, connection.DestinationRoom, roomFrom, hasLock, cost, type == RoomNode.RoomType.Secret));
                         return connection;
                     }
                 case ConnectionNode.Orientation.West:
                     {
-                        ConnectionNode connection = new ConnectionNode(Orientation, roomFrom, new RoomNode(new Vector2Int(roomFrom.Position.x - Instance.ROOMSIZE.x, roomFrom.Position.y), type, 0, isPrimary), hasLock,
+                        ConnectionNode connection = new ConnectionNode(Orientation, roomFrom, new RoomNode(new Vector2Int(roomFrom.Position.x - Instance.ROOMSIZE.x, roomFrom.Position.y), type, 0), hasLock,
                             cost,
                             type == RoomNode.RoomType.Secret
                             );
                         roomFrom.Connections.Add(connection);
+                        connection.DestinationRoom.Connections.Add(new ConnectionNode(ConnectionNode.Orientation.East, connection.DestinationRoom, roomFrom, hasLock, cost, type == RoomNode.RoomType.Secret));
                         return connection;
                     }
                 case ConnectionNode.Orientation.East:
                     {
-                        ConnectionNode connection = new ConnectionNode(Orientation, roomFrom, new RoomNode(new Vector2Int(roomFrom.Position.x + Instance.ROOMSIZE.x, roomFrom.Position.y), type, 0, isPrimary), hasLock,
+                        ConnectionNode connection = new ConnectionNode(Orientation, roomFrom, new RoomNode(new Vector2Int(roomFrom.Position.x + Instance.ROOMSIZE.x, roomFrom.Position.y), type, 0), hasLock,
                             cost,
                             type == RoomNode.RoomType.Secret
                             );
                         roomFrom.Connections.Add(connection);
+                        connection.DestinationRoom.Connections.Add(new ConnectionNode(ConnectionNode.Orientation.West, connection.DestinationRoom, roomFrom, hasLock, cost, type == RoomNode.RoomType.Secret));
                         return connection;
                     }
                 default:
@@ -234,7 +239,7 @@ namespace DungeonGenerator
                 if (roomsSpawned + 1 == Instance.nbOfRoomsClamp)
                 {
                     latestOrientation = GenerateValidOrientation(previousRoom.Value);
-                    ConnectionNode con = BuildAdjacentRoom(previousRoom.Value, latestOrientation, RoomNode.RoomType.End, false, true);
+                    ConnectionNode con = BuildAdjacentRoom(previousRoom.Value, latestOrientation, RoomNode.RoomType.End);
                     connections.Add(con);
                     lastestSpawnedRoom = con.DestinationRoom;
                     rooms.Add(lastestSpawnedRoom.Value);
@@ -393,6 +398,8 @@ namespace DungeonGenerator
 #if UNITY_EDITOR
             Debug.Log("Number of extra tries needed to generate dungeon : " + nbOfExtraTries);
             string mapstring = "Map :" + "\n";
+
+            bool hasHadPrimaryDoor = false;
             foreach (RoomNode room in rooms)
             {
                 mapstring += "I am a " + room.Type + " room at " + room.Position + ", Difficulty : " + room.Difficulty + "\n";
@@ -438,7 +445,18 @@ namespace DungeonGenerator
                         if (connectionNode.Value.IsSecret)
                             door.SetState(Door.STATE.SECRET);
                         else if (connectionNode.Value.HasLock)
+                        {
+                            if(room.IsPrimary && connectionNode.Value.DestinationRoom.IsPrimary)
+                            {
+                                door.SetIsPrimaryPath();
+                                door.SetDoorCostIfPrimary(hasHadPrimaryDoor);
+                                if(!hasHadPrimaryDoor)
+                                {
+                                    hasHadPrimaryDoor = true;
+                                }
+                            }
                             door.SetState(Door.STATE.CLOSED);
+                        }
                         else
                             door.SetState(Door.STATE.OPEN);
                     }

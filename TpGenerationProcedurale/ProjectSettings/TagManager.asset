@@ -5,6 +5,10 @@ TagManager:
   serializedVersion: 2
   tags:
   - Door
+  - Enemy
+  - ShopTile
+  - PointTrigger
+  - PointBlocker
   layers:
   - Default
   - TransparentFX

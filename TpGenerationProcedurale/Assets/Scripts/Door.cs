@@ -19,6 +19,7 @@ public class Door : MonoBehaviour {
         EQUAL = 2,
         SUPERIOR = 3,
         SUPERIOR_EQUAL = 4,
+        ANY = 5
     }
 
     public const string PLAYER_NAME = "Player";
@@ -35,10 +36,12 @@ public class Door : MonoBehaviour {
     public GameObject wallGo = null;
     public GameObject secretGo = null;
 
-    public int doorValueIfLocked = 0;
+    private int doorValueIfLocked = 0;
     public bool takePointFromPlayer = true;
 
 	private Room _room = null;
+
+    private bool isPrimaryPath = false;
 
 	public void Awake()
 	{
@@ -146,6 +149,9 @@ public class Door : MonoBehaviour {
                     return true;
                 }
                 break;
+            case POINT_STATE.ANY:
+                return true;
+                break;
             default:
                 return false;
         }
@@ -202,6 +208,89 @@ public class Door : MonoBehaviour {
                 if (secretGo) { secretGo.SetActive(true); }
                 break;
         }
+    }
+
+    public void SetIsPrimaryPath()
+    {
+        isPrimaryPath = true;
+    }
+
+    public bool GetIsPrimarypath()
+    {
+        return isPrimaryPath;
+    }
+
+    public void SetDoorCostIfPrimary(bool hadPrimaryDoorBefore)
+    {
+        int index = Room.allRooms.FindIndex(r => r.position == _room.position);
+
+        int possibleLoss = 0;
+        int possibleGain = 0;
+
+        bool canLoop = true;
+
+        List<Door> roomDoorList;
+
+        while(index >= 0 && canLoop)
+        {
+            possibleLoss += Room.allRooms[index].GetPotentialLoss();
+            possibleGain += Room.allRooms[index].GetPotentialPointWin();
+            --index;
+
+            if (hadPrimaryDoorBefore)
+            {
+                roomDoorList = Room.allRooms[index].GetAllDoorInRoom();
+                foreach (Door door in roomDoorList)
+                {
+                    if(door._state == STATE.CLOSED && door.GetIsPrimarypath())
+                    {
+                        canLoop = false;
+                    }
+                }
+            }
+        }
+        doorValueIfLocked = possibleGain - possibleLoss - 1;
+        _pointState = POINT_STATE.ANY;
+    }
+
+    public void SetDoorCostIfSecondaryPath(List<DungeonGenerator.RoomNode?> roomNodes)
+    {
+
+        int possibleLoss = 0;
+        int possibleGain = 0;
+
+        Room roomAfterDoor = GetNextRoom();
+        DungeonGenerator.RoomNode OriginalNode = roomNodes.Find(r => r.Value.Position == roomAfterDoor.position).Value;
+        DungeonGenerator.RoomNode currentNode;
+        DungeonGenerator.RoomNode lastNode;
+
+
+        bool canLoop = true;
+
+        List<Door> roomDoorList;
+
+        possibleLoss += roomAfterDoor.GetPotentialLoss();
+        possibleGain += roomAfterDoor.GetPotentialPointWin();
+        lastNode = OriginalNode;
+        for (int i = 0; i < OriginalNode.Connections.Count; i++)
+        {
+            if(OriginalNode.Connections[i].Value.DestinationRoom.Position == _room.position)
+            {
+                continue;
+            }
+            currentNode = OriginalNode.Connections[i].Value.DestinationRoom;
+            while (canLoop)
+            {
+                //lastNode = 
+            }
+
+        }
+        //possibleLoss += Room.allRooms[index].GetPotentialLoss();
+        //possibleGain += Room.allRooms[index].GetPotentialPointWin();
+        //--index;
+
+        doorValueIfLocked = possibleGain - possibleLoss - 1;
+        _pointState = POINT_STATE.ANY;
     }
 
 }

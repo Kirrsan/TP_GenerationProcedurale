@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 816192926143686063}
   m_Layer: 0
   m_Name: PointBlocker
-  m_TagString: Door
+  m_TagString: PointBlocker
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
