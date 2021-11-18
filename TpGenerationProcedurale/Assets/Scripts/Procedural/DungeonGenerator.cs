@@ -139,7 +139,7 @@ namespace DungeonGenerator
         }
         static RoomNode SpawnStartRoom(Vector2Int startPos)
         {
-            return new RoomNode(startPos, RoomNode.RoomType.Start, 0);
+            return new RoomNode(startPos, RoomNode.RoomType.Start, 0, true);
         }
         static int NbOfSpawn(RoomNode.RoomType type)
         {
@@ -239,7 +239,7 @@ namespace DungeonGenerator
                 if (roomsSpawned + 1 == Instance.nbOfRoomsClamp)
                 {
                     latestOrientation = GenerateValidOrientation(previousRoom.Value);
-                    ConnectionNode con = BuildAdjacentRoom(previousRoom.Value, latestOrientation, RoomNode.RoomType.End);
+                    ConnectionNode con = BuildAdjacentRoom(previousRoom.Value, latestOrientation, RoomNode.RoomType.End, true, true,0);
                     connections.Add(con);
                     lastestSpawnedRoom = con.DestinationRoom;
                     rooms.Add(lastestSpawnedRoom.Value);
@@ -398,13 +398,15 @@ namespace DungeonGenerator
 #if UNITY_EDITOR
             Debug.Log("Number of extra tries needed to generate dungeon : " + nbOfExtraTries);
             string mapstring = "Map :" + "\n";
-
             bool hasHadPrimaryDoor = false;
             foreach (RoomNode room in rooms)
             {
-                mapstring += "I am a " + room.Type + " room at " + room.Position + ", Difficulty : " + room.Difficulty + "\n";
+                mapstring += "I am a " + room.Type + " room at " + room.Position + ", I have connections : ";
+                foreach (ConnectionNode connection in room.Connections)
+                    mapstring += connection.Direction + " ,";
+                mapstring += "\n";
                 GameObject roomGO = Instantiate(roomPrefab[(int)room.Type]);
-                roomGO.GetComponent<Room>().position = new Vector2Int(room.Position.x, room.Position.y);
+                roomGO.GetComponent<Room>().position = room.Position;
                 //TODO : Do the Doors
                 Room roomComponent = roomGO.GetComponent<Room>();
                 foreach (Door door in roomComponent.GetAllDoorInRoom())
