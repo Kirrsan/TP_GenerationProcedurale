@@ -7,16 +7,16 @@ namespace DungeonGenerator
     {
         public enum RoomType
         {
-            Default,
+            NULL = int.MinValue,
             Start,
-            Combat,
-            BonusPoint,
+            Classic,
+            Trap,
             Danger,
+            Safe,
             Merchant,
-            Sudoku,
             Secret,
             End,
-            NULL
+            
         }
         public enum RoomDifficulty
         {
@@ -90,7 +90,11 @@ namespace DungeonGenerator
         [Range(3, 2500)] public int nbOfRoomsClamp = 5;
         [Range(0, 9999)] public int difficultyBudget = 10;
         [Header("System")] public int extraTriesClamp = 10;
-        public List<GameObject> roomPrefab = new List<GameObject>();
+        public List<GameObject> prefabClassic = new List<GameObject>(3);
+        public List<GameObject> prefabTrap = new List<GameObject>(3);
+        public List<GameObject> prefabtDanger = new List<GameObject>(3);
+        public List<GameObject> prefabSafe = new List<GameObject>(3);
+        public List<GameObject> prefabShop = new List<GameObject>(3);
         public Vector2Int ROOMSIZE = new Vector2Int(11, 9);
         public RectInt maxLevelSize;
         public static List<RoomNode?> rooms = new List<RoomNode?>();
@@ -160,7 +164,7 @@ namespace DungeonGenerator
         {
             return rooms.FindAll(r => r.Value.Type == type).Count;
         }
-        static ConnectionNode BuildAdjacentRoom(RoomNode roomFrom, ConnectionNode.Orientation Orientation, RoomNode.RoomType type = RoomNode.RoomType.Default, bool isPrimary = false, bool hasLock = false, int cost = 0)
+        static ConnectionNode BuildAdjacentRoom(RoomNode roomFrom, ConnectionNode.Orientation Orientation, RoomNode.RoomType type = RoomNode.RoomType.Classic, bool isPrimary = false, bool hasLock = false, int cost = 0)
         {
             switch (Orientation)
             {
@@ -244,6 +248,8 @@ namespace DungeonGenerator
             ConnectionNode.Orientation latestOrientation = ConnectionNode.Orientation.NULL;
             RoomNode? previousRoom;
             RoomNode? latestSpawnedRoom = null;
+            RoomNode.RoomType selectedRoomType = RoomNode.RoomType.Classic;
+            RoomNode.RoomDifficulty selectedDifficulty = RoomNode.RoomDifficulty.Easy;
             //PREREQUISITES
             bool startingSequenceSpawned = false;
             bool endRoomSpawned = false;
@@ -253,6 +259,78 @@ namespace DungeonGenerator
             {
                 //Update relevant values
                 previousRoom = latestSpawnedRoom;
+                float sampleRoomType = RandomFloat;
+                float sampleDifficulty = RandomFloat;
+
+                if(sampleRoomType > weightClassic)
+                    if (sampleDifficulty > weightClassic + weightTrap)
+                        if(sampleDifficulty > weightClassic + weightTrap + weightDanger)
+                            if (sampleDifficulty > weightClassic + weightTrap + weightDanger + weightSafe)
+                                selectedRoomType = RoomNode.RoomType.Merchant;
+                            else selectedRoomType = RoomNode.RoomType.Safe;
+                        else selectedRoomType = RoomNode.RoomType.Danger;
+                    else selectedRoomType = RoomNode.RoomType.Trap;
+                else selectedRoomType = RoomNode.RoomType.Classic;
+
+                if (sampleDifficulty > weightEasy)
+                    if (sampleDifficulty > weightEasy + weightMedium)
+                        selectedDifficulty = RoomNode.RoomDifficulty.Hard;
+                    else selectedDifficulty = RoomNode.RoomDifficulty.Medium;
+                else selectedDifficulty = RoomNode.RoomDifficulty.Easy;
+
+                switch (selectedRoomType)
+                {
+                    case RoomNode.RoomType.Merchant:
+                        {
+                            weightShop -= 0.1f;
+                            if(weightShop < 0) weightShop = 0;
+                            weightDanger += 0.025f;
+                            weightSafe += 0.025f;
+                            weightTrap += 0.025f;
+                            weightClassic += 0.025f;
+                        }
+                    break;
+                    case RoomNode.RoomType.Safe:
+                        {
+                            weightSafe -= 0.1f;
+                            if (weightSafe < 0) weightSafe = 0;
+                            weightDanger += 0.025f;
+                            weightShop += 0.025f;
+                            weightTrap += 0.025f;
+                            weightClassic += 0.025f;
+                        }
+                        break;
+                    case RoomNode.RoomType.Danger:
+                        {
+                            weightDanger -= 0.1f;
+                            if (weightDanger < 0) weightDanger = 0;
+                            weightShop += 0.025f;
+                            weightSafe += 0.025f;
+                            weightTrap += 0.025f;
+                            weightClassic += 0.025f;
+                        }
+                        break;
+                    case RoomNode.RoomType.Trap:
+                        {
+                            weightTrap -= 0.1f;
+                            if (weightTrap < 0) weightTrap = 0;
+                            weightDanger += 0.025f;
+                            weightSafe += 0.025f;
+                            weightShop += 0.025f;
+                            weightClassic += 0.025f;
+                        }
+                        break;
+                    case RoomNode.RoomType.Classic:
+                        {
+                            weightClassic -= 0.1f;
+                            if (weightClassic < 0) weightClassic = 0;
+                            weightDanger += 0.025f;
+                            weightSafe += 0.025f;
+                            weightTrap += 0.025f;
+                            weightShop += 0.025f;
+                        }
+                        break;
+                }
 
                 if (!startingSequenceSpawned)
                 {
@@ -262,11 +340,11 @@ namespace DungeonGenerator
                     roomsSpawned++;
 
                     //Spawn first combat room
-                    latestSpawnedRoom = BuildAdjacentRoom(latestSpawnedRoom.Value, ConnectionNode.Orientation.East, RoomNode.RoomType.Combat, true).DestinationRoom;
+                    latestSpawnedRoom = BuildAdjacentRoom(latestSpawnedRoom.Value, ConnectionNode.Orientation.East, RoomNode.RoomType.Trap, true).DestinationRoom;
                     rooms.Add(latestSpawnedRoom);
                     roomsSpawned++;
 
-                    latestSpawnedRoom = BuildAdjacentRoom(latestSpawnedRoom.Value, ConnectionNode.Orientation.East, RoomNode.RoomType.Default, true, true, 5).DestinationRoom;
+                    latestSpawnedRoom = BuildAdjacentRoom(latestSpawnedRoom.Value, ConnectionNode.Orientation.East, RoomNode.RoomType.Classic, true, true, 5).DestinationRoom;
                     rooms.Add(latestSpawnedRoom);
                     roomsSpawned++;
                     startingSequenceSpawned = true;
@@ -286,7 +364,7 @@ namespace DungeonGenerator
                 {
                     //TODO : Track Orientation to have even room distribution on the grid space
                     latestOrientation = GenerateValidOrientation(previousRoom.Value);
-                    ConnectionNode con = BuildAdjacentRoom(previousRoom.Value, latestOrientation, RoomNode.RoomType.Combat, true);
+                    ConnectionNode con = BuildAdjacentRoom(previousRoom.Value, latestOrientation, RoomNode.RoomType.Trap, true);
                     connections.Add(con);
                     latestSpawnedRoom = con.DestinationRoom;
                     rooms.Add(latestSpawnedRoom.Value);
@@ -442,7 +520,7 @@ namespace DungeonGenerator
                 foreach (ConnectionNode connection in room.Connections)
                     mapstring += connection.Direction + " ,";
                 mapstring += "\n";
-                GameObject roomGO = Instantiate(roomPrefab[(int)room.Type]);
+                GameObject roomGO = Instantiate(/*roomPrefab[(int)room.Type]*/ new GameObject());
                 roomGO.GetComponent<Room>().position = room.Position;
                 //TODO : Do the Doors
                 Room roomComponent = roomGO.GetComponent<Room>();
