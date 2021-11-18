@@ -431,12 +431,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _state: 0
-  _pointState: 0
+  _pointState: 5
   closedGo: {fileID: 7770916311107008316}
   openGo: {fileID: 4596811972292035933}
   wallGo: {fileID: 4967174266721666715}
   secretGo: {fileID: 83437034334453738}
-  doorValueIfLocked: 0
   takePointFromPlayer: 1
 --- !u!1 &7770916311107008316
 GameObject:

@@ -254,42 +254,46 @@ public class Door : MonoBehaviour {
 
     public void SetDoorCostIfSecondaryPath(List<DungeonGenerator.RoomNode?> roomNodes)
     {
-
         int possibleLoss = 0;
         int possibleGain = 0;
 
-        Room roomAfterDoor = GetNextRoom();
-        DungeonGenerator.RoomNode OriginalNode = roomNodes.Find(r => r.Value.Position == roomAfterDoor.position).Value;
-        DungeonGenerator.RoomNode currentNode;
-        DungeonGenerator.RoomNode lastNode;
+        Room currentRoom = GetNextRoom();
+        DungeonGenerator.RoomNode OriginalNode = roomNodes.Find(r => r.Value.Position == currentRoom.position).Value;
 
 
         bool canLoop = true;
 
-        //List<Door> roomDoorList;
-
-        possibleLoss += roomAfterDoor.GetPotentialLoss();
-        possibleGain += roomAfterDoor.GetPotentialPointWin();
-        lastNode = OriginalNode;
+        possibleLoss += currentRoom.GetPotentialLoss();
+        possibleGain += currentRoom.GetPotentialPointWin();
         for (int i = 0; i < OriginalNode.Connections.Count; i++)
         {
-            if(OriginalNode.Connections[i].Value.DestinationRoom.Position == _room.position)
+            RecursiveNodeCheck(OriginalNode.Connections[i].Value.DestinationRoom, OriginalNode, ref possibleLoss, ref possibleGain);
+        }
+
+        doorValueIfLocked = (possibleGain - possibleLoss) /2;
+        _pointState = POINT_STATE.SUPERIOR_EQUAL;
+    }
+
+    private void RecursiveNodeCheck(DungeonGenerator.RoomNode node, DungeonGenerator.RoomNode lastNode, ref int possibleLoss, ref int possibleGain)
+    {
+        Room currentRoom;
+        for (int i = 0; i < node.Connections.Count; i++)
+        {
+            if (node.Connections[i].Value.DestinationRoom.Position == lastNode.Position)
             {
                 continue;
             }
-            currentNode = OriginalNode.Connections[i].Value.DestinationRoom;
-            while (canLoop)
+
+            if(node.Connections[i].Value.HasLock)
             {
-                //lastNode = 
+                continue;
             }
 
+            currentRoom = Room.allRooms.Find(r => r.position == node.Position);
+            possibleLoss += currentRoom.GetPotentialLoss();
+            possibleGain += currentRoom.GetPotentialPointWin();
+            RecursiveNodeCheck(node.Connections[i].Value.DestinationRoom, node, ref possibleLoss, ref possibleGain);
         }
-        //possibleLoss += Room.allRooms[index].GetPotentialLoss();
-        //possibleGain += Room.allRooms[index].GetPotentialPointWin();
-        //--index;
-
-        doorValueIfLocked = possibleGain - possibleLoss - 1;
-        _pointState = POINT_STATE.ANY;
     }
 
 }
