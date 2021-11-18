@@ -138,7 +138,7 @@ namespace DungeonGenerator
         }
         static RoomNode SpawnStartRoom(Vector2Int startPos)
         {
-            return new RoomNode(startPos, RoomNode.RoomType.Start, 0);
+            return new RoomNode(startPos, RoomNode.RoomType.Start, 0, true);
         }
         static int NbOfSpawn(RoomNode.RoomType type)
         {
@@ -162,7 +162,7 @@ namespace DungeonGenerator
                     }
                 case ConnectionNode.Orientation.South:
                     {
-                        ConnectionNode connection = new ConnectionNode(Orientation, roomFrom, new RoomNode(new Vector2Int(roomFrom.Position.x, roomFrom.Position.y - Instance.ROOMSIZE.y), type, 0), hasLock,
+                        ConnectionNode connection = new ConnectionNode(Orientation, roomFrom, new RoomNode(new Vector2Int(roomFrom.Position.x, roomFrom.Position.y - Instance.ROOMSIZE.y), type, 0, isPrimary), hasLock,
                             cost,
                             type == RoomNode.RoomType.Secret
                             );
@@ -171,7 +171,7 @@ namespace DungeonGenerator
                     }
                 case ConnectionNode.Orientation.West:
                     {
-                        ConnectionNode connection = new ConnectionNode(Orientation, roomFrom, new RoomNode(new Vector2Int(roomFrom.Position.x - Instance.ROOMSIZE.x, roomFrom.Position.y), type, 0), hasLock,
+                        ConnectionNode connection = new ConnectionNode(Orientation, roomFrom, new RoomNode(new Vector2Int(roomFrom.Position.x - Instance.ROOMSIZE.x, roomFrom.Position.y), type, 0, isPrimary), hasLock,
                             cost,
                             type == RoomNode.RoomType.Secret
                             );
@@ -180,7 +180,7 @@ namespace DungeonGenerator
                     }
                 case ConnectionNode.Orientation.East:
                     {
-                        ConnectionNode connection = new ConnectionNode(Orientation, roomFrom, new RoomNode(new Vector2Int(roomFrom.Position.x + Instance.ROOMSIZE.x, roomFrom.Position.y), type, 0), hasLock,
+                        ConnectionNode connection = new ConnectionNode(Orientation, roomFrom, new RoomNode(new Vector2Int(roomFrom.Position.x + Instance.ROOMSIZE.x, roomFrom.Position.y), type, 0, isPrimary), hasLock,
                             cost,
                             type == RoomNode.RoomType.Secret
                             );
@@ -234,7 +234,7 @@ namespace DungeonGenerator
                 if (roomsSpawned + 1 == Instance.nbOfRoomsClamp)
                 {
                     latestOrientation = GenerateValidOrientation(previousRoom.Value);
-                    ConnectionNode con = BuildAdjacentRoom(previousRoom.Value, latestOrientation, RoomNode.RoomType.End);
+                    ConnectionNode con = BuildAdjacentRoom(previousRoom.Value, latestOrientation, RoomNode.RoomType.End, false, true);
                     connections.Add(con);
                     lastestSpawnedRoom = con.DestinationRoom;
                     rooms.Add(lastestSpawnedRoom.Value);
