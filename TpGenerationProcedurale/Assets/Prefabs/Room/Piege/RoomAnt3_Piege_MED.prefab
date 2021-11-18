@@ -430,7 +430,7 @@ GameObject:
   - component: {fileID: 5134587719600406317}
   - component: {fileID: 5134587719600406314}
   m_Layer: 0
-  m_Name: RoomAnt3_Danger_MED
+  m_Name: RoomAnt3_Piege_MED
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -490,6 +490,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   isStartRoom: 1
   position: {x: 0, y: 0}
+  roomDifficulty: 1
 --- !u!50 &5134587719600406314
 Rigidbody2D:
   serializedVersion: 4
