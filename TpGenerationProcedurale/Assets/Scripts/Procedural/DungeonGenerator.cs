@@ -99,6 +99,13 @@ namespace DungeonGenerator
         public RectInt maxLevelSize;
         public static List<RoomNode?> rooms = new List<RoomNode?>();
         public static List<ConnectionNode?> connections = new List<ConnectionNode?>();
+
+        private static int firstDoorIndex;
+        private static int secondDoorIndex;
+
+        private static bool startingSequenceSpawned = false;
+        private static bool endRoomSpawned = false;
+
         static ConnectionNode.Orientation RandomOrientation
         {
             get => (ConnectionNode.Orientation)Random.Range(0, 4);
@@ -150,6 +157,12 @@ namespace DungeonGenerator
                 safetyNet++;
                 continue;
             }
+
+            if(safetyNet >= 6)
+            {
+                return ConnectionNode.Orientation.NULL;
+            }
+
             return Orientation;
         }
         static RoomNode SpawnStartRoom(Vector2Int startPos)
@@ -251,8 +264,7 @@ namespace DungeonGenerator
             RoomNode.RoomType selectedRoomType = RoomNode.RoomType.Classic;
             RoomNode.RoomDifficulty selectedDifficulty = RoomNode.RoomDifficulty.Easy;
             //PREREQUISITES
-            bool startingSequenceSpawned = false;
-            bool endRoomSpawned = false;
+
 
             //Main Route Loop
             while (roomsSpawned < roomBudget)
@@ -351,9 +363,18 @@ namespace DungeonGenerator
                     
                     continue;
                 }
-                if (roomsSpawned + 1 == roomBudget)
+                else if(!previousRoom.HasValue)
+                {
+                    previousRoom = rooms.Find(r => r.Value.Position == startPos);
+                }
+
+                if (!endRoomSpawned && roomsSpawned + 1 == roomBudget)
                 {
                     latestOrientation = GenerateValidOrientation(previousRoom.Value);
+                    if (latestOrientation == ConnectionNode.Orientation.NULL)
+                    {
+                        return false;
+                    }
                     ConnectionNode con = BuildAdjacentRoom(previousRoom.Value, latestOrientation, RoomNode.RoomType.End, true, true, 0);
                     connections.Add(con);
                     latestSpawnedRoom = con.DestinationRoom;
@@ -364,7 +385,10 @@ namespace DungeonGenerator
                 {
                     //TODO : Track Orientation to have even room distribution on the grid space
                     latestOrientation = GenerateValidOrientation(previousRoom.Value);
-                    ConnectionNode con = BuildAdjacentRoom(previousRoom.Value, latestOrientation, RoomNode.RoomType.Trap, true);
+                    if(latestOrientation == ConnectionNode.Orientation.NULL)
+                        return false;
+                    
+                    ConnectionNode con = BuildAdjacentRoom(previousRoom.Value, latestOrientation, RoomNode.RoomType.Classic, true);
                     connections.Add(con);
                     latestSpawnedRoom = con.DestinationRoom;
                     rooms.Add(latestSpawnedRoom.Value);
@@ -489,7 +513,37 @@ namespace DungeonGenerator
         {
             rooms.Clear();
             connections.Clear();
-            return BuildPrimaryPath(Vector2Int.zero, Instance.nbOfRoomsClamp);
+
+            startingSequenceSpawned = false;
+            endRoomSpawned = false;
+
+            if (BuildPrimaryPath(Vector2Int.zero, Instance.nbOfRoomsClamp))
+            {
+                RoomNode secondaryPathStart = rooms[3].Value;
+                
+                if (BuildPrimaryPath(secondaryPathStart.Position, 20))
+                {
+                    secondaryPathStart = rooms[7].Value;
+                    if (BuildPrimaryPath(secondaryPathStart.Position, 20))
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                return false;
+            }
+
+
             throw new System.NotImplementedException("You did the oopsie");
         }
         void OnDrawGizmosSelected()
@@ -514,6 +568,9 @@ namespace DungeonGenerator
             Debug.Log("Number of extra tries needed to generate dungeon : " + nbOfExtraTries);
             string mapstring = "Map :" + "\n";
             bool hasHadPrimaryDoor = false;
+
+            RoomNode lastPrimaryNodeWithDoor = new RoomNode();
+            int roomIndex = 0;
             foreach (RoomNode room in rooms)
             {
                 mapstring += "I am a " + room.Type + " room at " + room.Position + ", I have connections : ";
@@ -564,14 +621,21 @@ namespace DungeonGenerator
                             door.SetState(Door.STATE.SECRET);
                         else if (connectionNode.Value.HasLock)
                         {
-                            if (room.IsPrimary && connectionNode.Value.DestinationRoom.IsPrimary)
+                            if (room.IsPrimary && connectionNode.Value.DestinationRoom.IsPrimary 
+                                && lastPrimaryNodeWithDoor.Position != connectionNode.Value.DestinationRoom.Position)
                             {
                                 door.SetIsPrimaryPath();
                                 door.SetDoorCostIfPrimary(hasHadPrimaryDoor);
                                 if (!hasHadPrimaryDoor)
                                 {
+                                    firstDoorIndex = roomIndex;
                                     hasHadPrimaryDoor = true;
                                 }
+                                else
+                                {
+                                    secondDoorIndex = roomIndex;
+                                }
+                                lastPrimaryNodeWithDoor = room;
                             }
                             door.SetState(Door.STATE.CLOSED);
                         }
@@ -584,6 +648,7 @@ namespace DungeonGenerator
                 }
                 roomGO.transform.parent = transform;
                 roomGO.transform.position = new Vector2(room.Position.x, room.Position.y);
+                ++roomIndex;
             }
 
             Debug.Log(mapstring);
