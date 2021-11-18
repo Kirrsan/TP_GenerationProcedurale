@@ -258,10 +258,13 @@ public class Door : MonoBehaviour {
         int possibleGain = 0;
 
         Room currentRoom = GetNextRoom();
+        if(currentRoom == null)
+        {
+            SetState(STATE.WALL);
+            return;
+        }
         DungeonGenerator.RoomNode OriginalNode = roomNodes.Find(r => r.Value.Position == currentRoom.position).Value;
 
-
-        bool canLoop = true;
 
         possibleLoss += currentRoom.GetPotentialLoss();
         possibleGain += currentRoom.GetPotentialPointWin();
@@ -294,6 +297,11 @@ public class Door : MonoBehaviour {
             possibleGain += currentRoom.GetPotentialPointWin();
             RecursiveNodeCheck(node.Connections[i].Value.DestinationRoom, node, ref possibleLoss, ref possibleGain);
         }
+    }
+
+    public int GetDoorValueIfLocked()
+    {
+        return doorValueIfLocked;
     }
 
 }

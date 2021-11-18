@@ -23,6 +23,10 @@ public class Room : MonoBehaviour {
 	private int potentialPointToLose = 0;
 	private int potentialPointToGain = 0;
 
+	private int potentialPointWithShortestPathToRoom = 0;
+
+	private bool hasCalculatedEnemyLevels = false;
+
     void Awake()
     {
 		_tilemapGroup = GetComponentInChildren<TilemapGroup>();
@@ -48,53 +52,66 @@ public class Room : MonoBehaviour {
         Bounds cameraBounds = GetWorldRoomBounds();
         cameraFollow.SetBounds(cameraBounds);
 		Player.Instance.EnterRoom(this);
-    }
 
-
-	public Bounds GetLocalRoomBounds()
-    {
-		Bounds roomBounds = new Bounds(Vector3.zero, Vector3.zero);
-		if (_tilemapGroup == null)
-			return roomBounds;
-
-		foreach (STETilemap tilemap in _tilemapGroup.Tilemaps)
-		{
-			Bounds bounds = tilemap.MapBounds;
-			roomBounds.Encapsulate(bounds);
-		}
-		return roomBounds;
-    }
-
-    public Bounds GetWorldRoomBounds()
-    {
-        Bounds result = GetLocalRoomBounds();
-        result.center += transform.position;
-        return result;
-    }
-
-	public bool Contains(Vector3 position)
-	{
-		position.z = 0;
-		return (GetWorldRoomBounds().Contains(position));
-	}
-
-	public Door[] GetAllDoorInRoom()
-    {
-		return GetComponentsInChildren<Door>();
-
-		/*int childCount = transform.GetChild(0).childCount;
-        for (int i = 0; i < childCount; i++)
+		if(!hasCalculatedEnemyLevels)
         {
-			if(transform.GetChild(0).GetChild(i).CompareTag("Door"))
+			int childCount = transform.GetChild(1).childCount;
+			for (int i = 0; i < childCount; i++)
 			{
-				doors.Add(transform.GetChild(0).GetChild(i).GetComponent<Door>());
+				if(transform.GetChild(1).GetChild(i).CompareTag("Enemy"))
+				{
+					transform.GetChild(1).GetChild(i).GetComponent<Enemy>().SetupLevel();
+				}
 			}
+			hasCalculatedEnemyLevels = true;
+		}
+}
+
+
+public Bounds GetLocalRoomBounds()
+{
+Bounds roomBounds = new Bounds(Vector3.zero, Vector3.zero);
+if (_tilemapGroup == null)
+	return roomBounds;
+
+foreach (STETilemap tilemap in _tilemapGroup.Tilemaps)
+{
+	Bounds bounds = tilemap.MapBounds;
+	roomBounds.Encapsulate(bounds);
+}
+return roomBounds;
+}
+
+public Bounds GetWorldRoomBounds()
+{
+Bounds result = GetLocalRoomBounds();
+result.center += transform.position;
+return result;
+}
+
+public bool Contains(Vector3 position)
+{
+position.z = 0;
+return (GetWorldRoomBounds().Contains(position));
+}
+
+public Door[] GetAllDoorInRoom()
+{
+return GetComponentsInChildren<Door>();
+
+/*int childCount = transform.GetChild(0).childCount;
+for (int i = 0; i < childCount; i++)
+{
+	if(transform.GetChild(0).GetChild(i).CompareTag("Door"))
+	{
+		doors.Add(transform.GetChild(0).GetChild(i).GetComponent<Door>());
+	}
+}
+
+return doors;*/
 		}
 
-		return doors;*/
-    }
-
-	public void GetRoomPoints()
+		public void GetRoomPoints()
     {
 		GameObject obj = null;
 
@@ -140,4 +157,19 @@ public class Room : MonoBehaviour {
     {
 		return potentialPointToGain;
     }
+
+	public int GetRoomIndex()
+    {
+		return allRooms.FindIndex(r => r.position == position);
+    }
+
+	public void SetPotentialPointWithShortestPathToRoom(int value)
+    {
+		potentialPointWithShortestPathToRoom = value;
+	}
+
+	public int GetPotentialPointWithShortestPathToRoom()
+	{
+		return potentialPointWithShortestPathToRoom;
+	}
 }
