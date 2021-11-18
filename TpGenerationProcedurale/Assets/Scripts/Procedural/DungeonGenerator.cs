@@ -19,7 +19,7 @@ namespace DungeonGenerator
             NULL
         }
         public Vector2Int Position { get; set; }
-        public List<ConnectionNode> Connections { get; set; }
+        public List<ConnectionNode?> Connections { get; set; }
         public RoomType Type { get; set; }
         public int Difficulty { get; set; }
         public bool IsPrimary { get; set; }
@@ -36,7 +36,7 @@ namespace DungeonGenerator
             Position = pos;
             Type = type;
             Difficulty = difficulty;
-            Connections = new List<ConnectionNode>();
+            Connections = new List<ConnectionNode?>();
             IsPrimary = isPrimary;
         }
     }
@@ -406,16 +406,16 @@ namespace DungeonGenerator
                     switch (door.Orientation)
                     {
                         case Utils.ORIENTATION.NORTH:
-                            connectionNode = room.Connections.Find(c => c.Direction == ConnectionNode.Orientation.North);
+                            connectionNode = room.Connections.Find(c => c.Value.Direction == ConnectionNode.Orientation.North).Value;
                             break;
                         case Utils.ORIENTATION.SOUTH:
-                            connectionNode = room.Connections.Find(c => c.Direction == ConnectionNode.Orientation.South);
+                            connectionNode = room.Connections.Find(c => c.Value.Direction == ConnectionNode.Orientation.South).Value;
                             break;
                         case Utils.ORIENTATION.WEST:
-                            connectionNode = room.Connections.Find(c => c.Direction == ConnectionNode.Orientation.West);
+                            connectionNode = room.Connections.Find(c => c.Value.Direction == ConnectionNode.Orientation.West).Value;
                             break;
                         case Utils.ORIENTATION.EAST:
-                            connectionNode = room.Connections.Find(c => c.Direction == ConnectionNode.Orientation.East);
+                            connectionNode = room.Connections.Find(c => c.Value.Direction == ConnectionNode.Orientation.East).Value;
                             break;
                     }
                     if (connectionNode != null)
