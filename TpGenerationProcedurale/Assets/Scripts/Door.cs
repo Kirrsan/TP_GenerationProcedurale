@@ -151,7 +151,6 @@ public class Door : MonoBehaviour {
                 break;
             case POINT_STATE.ANY:
                 return true;
-                break;
             default:
                 return false;
         }
@@ -229,7 +228,7 @@ public class Door : MonoBehaviour {
 
         bool canLoop = true;
 
-        List<Door> roomDoorList;
+        Door[] roomDoorList;
 
         while(index >= 0 && canLoop)
         {
@@ -267,7 +266,7 @@ public class Door : MonoBehaviour {
 
         bool canLoop = true;
 
-        List<Door> roomDoorList;
+        //List<Door> roomDoorList;
 
         possibleLoss += roomAfterDoor.GetPotentialLoss();
         possibleGain += roomAfterDoor.GetPotentialPointWin();

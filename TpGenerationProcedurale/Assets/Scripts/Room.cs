@@ -78,10 +78,11 @@ public class Room : MonoBehaviour {
 		return (GetWorldRoomBounds().Contains(position));
 	}
 
-	public List<Door> GetAllDoorInRoom()
+	public Door[] GetAllDoorInRoom()
     {
-		List<Door> doors = new List<Door>();
-		int childCount = transform.GetChild(0).childCount;
+		return GetComponentsInChildren<Door>();
+
+		/*int childCount = transform.GetChild(0).childCount;
         for (int i = 0; i < childCount; i++)
         {
 			if(transform.GetChild(0).GetChild(i).CompareTag("Door"))
@@ -90,7 +91,7 @@ public class Room : MonoBehaviour {
 			}
 		}
 
-		return doors;
+		return doors;*/
     }
 
 	public void GetRoomPoints()

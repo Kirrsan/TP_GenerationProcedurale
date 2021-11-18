@@ -141,11 +141,15 @@ namespace DungeonGenerator
         {
             return new RoomNode(startPos, RoomNode.RoomType.Start, 0, true);
         }
+        static RoomNode SpawnEndRoom(Vector2Int endPos)
+        {
+            return new RoomNode(endPos, RoomNode.RoomType.End, 0, true);
+        }
         static int NbOfSpawn(RoomNode.RoomType type)
         {
             return rooms.FindAll(r => r.Value.Type == type).Count;
         }
-        static ConnectionNode BuildAdjacentRoom(RoomNode roomFrom, ConnectionNode.Orientation Orientation, RoomNode.RoomType type = RoomNode.RoomType.Default, bool hasLock = false, bool isPrimary = false, int cost = 0)
+        static ConnectionNode BuildAdjacentRoom(RoomNode roomFrom, ConnectionNode.Orientation Orientation, RoomNode.RoomType type = RoomNode.RoomType.Default, bool isPrimary = false, bool hasLock = false, int cost = 0)
         {
             switch (Orientation)
             {
@@ -249,7 +253,7 @@ namespace DungeonGenerator
                 {
                     //TODO : Track Orientation to have even room distribution on the grid space
                     latestOrientation = GenerateValidOrientation(previousRoom.Value);
-                    ConnectionNode con = BuildAdjacentRoom(previousRoom.Value, latestOrientation, RoomNode.RoomType.Combat, true, true);
+                    ConnectionNode con = BuildAdjacentRoom(previousRoom.Value, latestOrientation, RoomNode.RoomType.Combat, true);
                     connections.Add(con);
                     lastestSpawnedRoom = con.DestinationRoom;
                     rooms.Add(lastestSpawnedRoom.Value);
@@ -393,8 +397,12 @@ namespace DungeonGenerator
         void Start()
         {
             int nbOfExtraTries = 0;
-            while (nbOfExtraTries < extraTriesClamp && !GenerateDungeonLoop())
-                nbOfExtraTries++;
+            //while (nbOfExtraTries < extraTriesClamp && !GenerateDungeonLoop())
+            //nbOfExtraTries++;
+            RoomNode startRoom = SpawnStartRoom(Vector2Int.zero);
+            RoomNode mediumRoom = BuildAdjacentRoom(startRoom, ConnectionNode.Orientation.North, RoomNode.RoomType.Combat, true, true, 0).DestinationRoom;
+            RoomNode endRoom = BuildAdjacentRoom(mediumRoom, ConnectionNode.Orientation.North, RoomNode.RoomType.End, true, true, 0).DestinationRoom;
+            rooms.Add(startRoom);rooms.Add(mediumRoom);rooms.Add(endRoom);
 #if UNITY_EDITOR
             Debug.Log("Number of extra tries needed to generate dungeon : " + nbOfExtraTries);
             string mapstring = "Map :" + "\n";
@@ -409,33 +417,34 @@ namespace DungeonGenerator
                 roomGO.GetComponent<Room>().position = room.Position;
                 //TODO : Do the Doors
                 Room roomComponent = roomGO.GetComponent<Room>();
+                int i = 0;
                 foreach (Door door in roomComponent.GetAllDoorInRoom())
                 {
                     ConnectionNode? connectionNode = null;
-                    switch (door.Orientation)
+                    switch (i)
                     {
-                        case Utils.ORIENTATION.NORTH:
+                        case 0:
                             {
                                 if(room.Connections.Find(c => c.Value.Direction == ConnectionNode.Orientation.North).HasValue)
                                 connectionNode = room.Connections.Find(c => c.Value.Direction == ConnectionNode.Orientation.North).Value;
                                 break;
                             }
 
-                        case Utils.ORIENTATION.SOUTH:
+                        case 2:
                             {
                                 if (room.Connections.Find(c => c.Value.Direction == ConnectionNode.Orientation.South).HasValue)
                                     connectionNode = room.Connections.Find(c => c.Value.Direction == ConnectionNode.Orientation.South).Value;
                                 break;
                             }
 
-                        case Utils.ORIENTATION.WEST:
+                        case 3:
                             {
                                 if (room.Connections.Find(c => c.Value.Direction == ConnectionNode.Orientation.West).HasValue)
                                     connectionNode = room.Connections.Find(c => c.Value.Direction == ConnectionNode.Orientation.West).Value;
                                 break;
                             }
 
-                        case Utils.ORIENTATION.EAST:
+                        case 1:
                             {
                                 if (room.Connections.Find(c => c.Value.Direction == ConnectionNode.Orientation.East).HasValue)
                                     connectionNode = room.Connections.Find(c => c.Value.Direction == ConnectionNode.Orientation.East).Value;
@@ -464,6 +473,7 @@ namespace DungeonGenerator
                     }
                     else
                         door.SetState(Door.STATE.WALL);
+                    i++;
                 }
                 roomGO.transform.parent = transform;
                 roomGO.transform.position = new Vector2(room.Position.x, room.Position.y);

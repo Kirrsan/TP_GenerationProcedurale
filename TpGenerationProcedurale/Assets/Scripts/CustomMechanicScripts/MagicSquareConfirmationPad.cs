@@ -26,7 +26,7 @@ public class MagicSquareConfirmationPad : MonoBehaviour
         if (_pointToHaveToConfirmSquare == Player.Instance.GetPoint())
         {
             //secret room opening
-            List<Door> doorList = currentRoom.GetAllDoorInRoom();
+            Door[] doorList = currentRoom.GetAllDoorInRoom();
             foreach (var door in doorList)
             {
                 if(door.State == Door.STATE.SECRET)
