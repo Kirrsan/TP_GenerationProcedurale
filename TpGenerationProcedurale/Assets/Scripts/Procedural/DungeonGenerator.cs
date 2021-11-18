@@ -418,7 +418,7 @@ namespace DungeonGenerator
                             connectionNode = room.Connections.Find(c => c.Direction == ConnectionNode.Orientation.East);
                             break;
                     }
-                    if (connectionNode.HasValue)
+                    if (connectionNode != null)
                     {
                         if (connectionNode.Value.IsSecret)
                             door.SetState(Door.STATE.SECRET);
