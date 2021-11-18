@@ -8,14 +8,14 @@ public class ShopTile : MonoBehaviour
     public enum ITEMTYPE
     {
         ATTACK,
-        DEFENSE,
+        HEALTH,
         SPEED
     }
 
     public ITEMTYPE typeOfItem;
 
     public GameObject attackObj;
-    public GameObject defenseObj;
+    public GameObject healthObj;
     public GameObject speedObj;
 
     public int itemStatMultiplier = 2;
@@ -30,17 +30,17 @@ public class ShopTile : MonoBehaviour
         {
             case ITEMTYPE.ATTACK:
                 attackObj.SetActive(true);
-                defenseObj.SetActive(false);
+                healthObj.SetActive(false);
                 speedObj.SetActive(false);
                 break;
-            case ITEMTYPE.DEFENSE:
+            case ITEMTYPE.HEALTH:
                 attackObj.SetActive(false);
-                defenseObj.SetActive(true);
+                healthObj.SetActive(true);
                 speedObj.SetActive(false);
                 break;
             case ITEMTYPE.SPEED:
                 attackObj.SetActive(false);
-                defenseObj.SetActive(false);
+                healthObj.SetActive(false);
                 speedObj.SetActive(true);
                 break;
         }
@@ -67,8 +67,8 @@ public class ShopTile : MonoBehaviour
             case ITEMTYPE.ATTACK:
                 Player.Instance.AddToAttackMultiplier(itemStatMultiplier);
                 break;
-            case ITEMTYPE.DEFENSE:
-                Player.Instance.AddToDefenseMultiplier(itemStatMultiplier);
+            case ITEMTYPE.HEALTH:
+                Player.Instance.AddToHealthMultiplier(itemStatMultiplier);
                 break;
             case ITEMTYPE.SPEED:
                 Player.Instance.AddToSpeedMultiplier(itemStatMultiplier);
