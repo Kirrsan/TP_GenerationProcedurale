@@ -56,6 +56,15 @@ namespace DungeonGenerator
         public int OpeningCost { get; set; }
         public bool HasLock { get; set; }
         public bool IsSecret { get; set; }
+        public ConnectionNode(Orientation direction, RoomNode origin, RoomNode destination, bool locked, int openingCost, bool secretRoom = false)
+        {
+            Direction = direction;
+            OriginRoom = origin;
+            DestinationRoom = destination;
+            HasLock = locked;
+            IsSecret = secretRoom;
+            OpeningCost = openingCost;
+        }
         public ConnectionNode(Orientation direction, RoomNode origin, RoomNode destination, bool secretRoom = false)
         {
             Direction = direction;
@@ -66,15 +75,7 @@ namespace DungeonGenerator
             OpeningCost = 0;
         }
 
-        public ConnectionNode(Orientation direction, RoomNode origin, RoomNode destination, bool locked, int openingCost, bool secretRoom = false)
-        {
-            Direction = direction;
-            OriginRoom = origin;
-            DestinationRoom = destination;
-            HasLock = locked;
-            IsSecret = secretRoom;
-            OpeningCost = openingCost;
-        }
+        
     }
     public class DungeonGenerator : MonoBehaviour
     {
@@ -158,6 +159,7 @@ namespace DungeonGenerator
                             type == RoomNode.RoomType.Secret
                             );
                         roomFrom.Connections.Add(connection);
+                        connection.DestinationRoom.Connections.Add(new ConnectionNode(ConnectionNode.Orientation.South, connection.DestinationRoom, roomFrom, hasLock, cost, type == RoomNode.RoomType.Secret));
                         return connection;
                     }
                 case ConnectionNode.Orientation.South:
@@ -167,6 +169,7 @@ namespace DungeonGenerator
                             type == RoomNode.RoomType.Secret
                             );
                         roomFrom.Connections.Add(connection);
+                        connection.DestinationRoom.Connections.Add(new ConnectionNode(ConnectionNode.Orientation.North, connection.DestinationRoom, roomFrom, hasLock, cost, type == RoomNode.RoomType.Secret));
                         return connection;
                     }
                 case ConnectionNode.Orientation.West:
@@ -176,6 +179,7 @@ namespace DungeonGenerator
                             type == RoomNode.RoomType.Secret
                             );
                         roomFrom.Connections.Add(connection);
+                        connection.DestinationRoom.Connections.Add(new ConnectionNode(ConnectionNode.Orientation.East, connection.DestinationRoom, roomFrom, hasLock, cost, type == RoomNode.RoomType.Secret));
                         return connection;
                     }
                 case ConnectionNode.Orientation.East:
@@ -185,6 +189,7 @@ namespace DungeonGenerator
                             type == RoomNode.RoomType.Secret
                             );
                         roomFrom.Connections.Add(connection);
+                        connection.DestinationRoom.Connections.Add(new ConnectionNode(ConnectionNode.Orientation.West, connection.DestinationRoom, roomFrom, hasLock, cost, type == RoomNode.RoomType.Secret));
                         return connection;
                     }
                 default:
