@@ -98,6 +98,16 @@ namespace DungeonGenerator
         public List<GameObject> prefabSafe = new List<GameObject>(3);
         public List<GameObject> prefabShop = new List<GameObject>(3);
         public List<GameObject> prefabSecret = new List<GameObject>(3);
+
+        [Range(3, 100)] public int nbOfRoomsClampFirstSecondaryPath = 5;
+        [Range(0, 9999)] public int difficultyBudgetFirstSecondaryPath = 10;
+
+        [Range(3, 100)] public int nbOfRoomsClampSecondSecondaryPath = 5;
+        [Range(0, 9999)] public int difficultyBudgetSecondSecondaryPath = 10;
+
+
+
+        public List<GameObject> roomPrefab = new List<GameObject>();
         public Vector2Int ROOMSIZE = new Vector2Int(11, 9);
         public RectInt maxLevelSize;
         public static List<RoomNode?> rooms = new List<RoomNode?>();
@@ -536,15 +546,15 @@ namespace DungeonGenerator
             if (BuildPrimaryPath(Vector2Int.zero, Instance.nbOfRoomsClamp, true))
             {
                 RoomNode secondaryPathStart = rooms[3].Value;
-
-                if (BuildPrimaryPath(secondaryPathStart.Position, 20))
+                
+                if (BuildPrimaryPath(secondaryPathStart.Position, Instance.nbOfRoomsClampFirstSecondaryPath))
                 {
                     RoomNode lastroom = rooms[rooms.Count - 1].Value;
                     lastroom.Type = RoomNode.RoomType.Secret;
                     rooms[rooms.Count - 1] = lastroom;
                     rooms.Add(BuildAdjacentRoom(lastroom, GenerateValidOrientation(lastroom), RoomNode.RoomType.Merchant, RoomNode.RoomDifficulty.Easy,false,false,0,true).DestinationRoom);  
                     secondaryPathStart = rooms[7].Value;
-                    if (BuildPrimaryPath(secondaryPathStart.Position, 20))
+                    if (BuildPrimaryPath(secondaryPathStart.Position, Instance.nbOfRoomsClampSecondSecondaryPath))
                     {
                         return true;
                     }
@@ -589,7 +599,13 @@ namespace DungeonGenerator
             bool hasHadPrimaryDoor = false;
 
             RoomNode lastPrimaryNodeWithDoor = new RoomNode();
+            int lastDoorScoreToPass = 0;
             int roomIndex = 0;
+
+            int scoreToThisPath = 0;
+            bool hasGottenToFirstSecondaryPath = false;
+            bool hasGottenToSecondSecondaryPath = false;
+
             foreach (RoomNode room in rooms)
             {
                 mapstring += "I am a " + room.Type + " room at " + room.Position + ", I have connections : ";
@@ -685,8 +701,10 @@ namespace DungeonGenerator
                                 door.SetState(Door.STATE.SECRET);
                             else if (connectionNode.Value.HasLock)
                             {
-                                if (room.IsPrimary && connectionNode.Value.DestinationRoom.IsPrimary
-                                    && lastPrimaryNodeWithDoor.Position != connectionNode.Value.DestinationRoom.Position)
+                                door.SetIsPrimaryPath();
+                                door.SetDoorCostIfPrimary(hasHadPrimaryDoor);
+                                lastDoorScoreToPass = door.GetDoorValueIfLocked();
+                                if (!hasHadPrimaryDoor)
                                 {
                                     door.SetIsPrimaryPath();
                                     door.SetDoorCostIfPrimary(hasHadPrimaryDoor);
@@ -701,10 +719,29 @@ namespace DungeonGenerator
                                     }
                                     lastPrimaryNodeWithDoor = room;
                                 }
+                                //add to path score the cost of the previous door
+                                else if (room.IsPrimary && connectionNode.Value.DestinationRoom.IsPrimary
+                                    && lastPrimaryNodeWithDoor.Position == connectionNode.Value.DestinationRoom.Position)
+                                {
+                                    scoreToThisPath -= lastDoorScoreToPass;
+                                }
+                                else if (!room.IsPrimary
+                                    && lastPrimaryNodeWithDoor.Position != connectionNode.Value.DestinationRoom.Position)
+                                {
+                                    door.SetDoorCostIfSecondaryPath(rooms);
+                                    lastDoorScoreToPass = door.GetDoorValueIfLocked();
+                                    lastPrimaryNodeWithDoor = room;
+                                }
+                                else if (!room.IsPrimary && lastPrimaryNodeWithDoor.Position == connectionNode.Value.DestinationRoom.Position)
+                                {
+                                    scoreToThisPath -= lastDoorScoreToPass;
+                                }
                                 door.SetState(Door.STATE.CLOSED);
                             }
                             else
+                            {
                                 door.SetState(Door.STATE.OPEN);
+                            }
                         }
                         else
                             door.SetState(Door.STATE.WALL);
@@ -713,7 +750,58 @@ namespace DungeonGenerator
                     roomGO.transform.parent = transform;
                     roomGO.transform.position = new Vector2(room.Position.x, room.Position.y);
                 }
+                roomGO.transform.parent = transform;
+                roomGO.transform.position = new Vector2(room.Position.x, room.Position.y);
+
+                Room currentRoom = roomGO.GetComponent<Room>();
+
+                if (room.IsPrimary)
+                {
+                    scoreToThisPath += currentRoom.GetPotentialPointWin() - currentRoom.GetPotentialLoss();
+                    currentRoom.SetPotentialPointWithShortestPathToRoom(scoreToThisPath);
+                }
+                else
+                {
+                    if(roomIndex > nbOfRoomsClamp && roomIndex <= nbOfRoomsClamp + nbOfRoomsClampFirstSecondaryPath)
+                    {
+                        //firstpath originates from room[3]
+                        if(!hasGottenToFirstSecondaryPath)
+                        {
+                            hasGottenToFirstSecondaryPath = true;
+                            scoreToThisPath = Room.allRooms[3].GetPotentialPointWithShortestPathToRoom();
+                        }
+
+                        scoreToThisPath += currentRoom.GetPotentialPointWin() - currentRoom.GetPotentialLoss();
+                        currentRoom.SetPotentialPointWithShortestPathToRoom(scoreToThisPath);
+                    }
+                    else if (roomIndex > nbOfRoomsClamp + nbOfRoomsClampFirstSecondaryPath)
+                    {
+                        //firstpath originates from room[7]
+                        if (!hasGottenToSecondSecondaryPath)
+                        {
+                            hasGottenToSecondSecondaryPath = true;
+                            scoreToThisPath = Room.allRooms[7].GetPotentialPointWithShortestPathToRoom();
+                        }
+
+                        scoreToThisPath += currentRoom.GetPotentialPointWin() - currentRoom.GetPotentialLoss();
+                        currentRoom.SetPotentialPointWithShortestPathToRoom(scoreToThisPath);
+                    }
+                }
                 ++roomIndex;
+            }
+
+            scoreToThisPath = Room.allRooms[nbOfRoomsClamp + nbOfRoomsClampFirstSecondaryPath - 1].GetPotentialPointWithShortestPathToRoom();
+            for (int i = 4; i < 8; i++)
+            {
+                scoreToThisPath += Room.allRooms[i].GetPotentialPointWin() - Room.allRooms[i].GetPotentialLoss();
+                Room.allRooms[i].SetPotentialPointWithShortestPathToRoom(scoreToThisPath);
+            }
+
+            scoreToThisPath = Room.allRooms[nbOfRoomsClamp + nbOfRoomsClampFirstSecondaryPath + nbOfRoomsClampSecondSecondaryPath - 1].GetPotentialPointWithShortestPathToRoom();
+            for (int i = 8; i < nbOfRoomsClamp - 1; i++)
+            {
+                scoreToThisPath += Room.allRooms[i].GetPotentialPointWin() - Room.allRooms[i].GetPotentialLoss();
+                Room.allRooms[i].SetPotentialPointWithShortestPathToRoom(scoreToThisPath);
             }
             Debug.Log(mapstring);
         }

@@ -161,10 +161,13 @@ public class Enemy : MonoBehaviour
 			if(room.Contains(transform.position))
 			{
 				_room = room;
-			}
+            }
 		}
 
-		SetState(STATE.IDLE);
+        _room.GetRoomIndex();
+
+
+        SetState(STATE.IDLE);
     }
 
     // Update is called once per frame
@@ -372,6 +375,13 @@ public class Enemy : MonoBehaviour
     private bool CanMove()
     {
         return _state == STATE.IDLE;
+    }
+
+    public void SetupLevel()
+    {
+        CreaturesPoints = Mathf.FloorToInt(_room.GetPotentialPointWithShortestPathToRoom() * Random.Range(0.75f, 1.25f));
+        CreaturePointText.text = CreaturesPoints.ToString();
+        SetupEnemy();
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
