@@ -788,8 +788,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: abd64e0034f05b44581a553bb498242e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  isStartRoom: 1
+  isStartRoom: 0
   position: {x: 0, y: 0}
+  roomDifficulty: 0
 --- !u!50 &6527734915122920915
 Rigidbody2D:
   serializedVersion: 4
