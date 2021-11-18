@@ -37,6 +37,13 @@ public class Enemy : MonoBehaviour
         DEAD = 3,
     }
 
+    public enum DIFFICULTY
+    {
+        EASY,
+        MEDIUM,
+        HARD
+    }
+
 
     // Life and hit related attributes
     [Header("Life")]
@@ -71,6 +78,7 @@ public class Enemy : MonoBehaviour
     public ORIENTATION orientation = ORIENTATION.FREE;
 
     private float lastAttackTime = float.MinValue;
+    private float attackDamage;
 
     // State attributes
     private STATE _state = STATE.IDLE;
@@ -81,6 +89,25 @@ public class Enemy : MonoBehaviour
 
 	public static List<Enemy> allEnemies = new List<Enemy>();
 
+    [Header("DifficultyLevels")]
+    public DIFFICULTY enemyDifficulty = DIFFICULTY.EASY;
+
+
+    public int easyBaseHealth = 100;
+    public int mediumBaseHealth = 500;
+    public int hardBaseHealth = 1500;
+
+    public int easyHealthPerLevel = 10;
+    public int mediumHealthPerLevel = 10;
+    public int hardHealthPerLevel = 10;
+
+    public float easyBaseDamage = 1;
+    public float mediumBaseDamage = 5;
+    public float hardBaseDamage = 10;
+
+    public float easyDamagePerLevel = 0.2f;
+    public float mediumDamagePerLevel = 0.25f;
+    public float hardDamagePerLevel = 0.3f;
 
     //TODO gérer les dégats et le comportement de la vie avec les points aussi, en attente des gds
     [Header("Points")]
@@ -97,9 +124,29 @@ public class Enemy : MonoBehaviour
 		allEnemies.Add(this);
         CreaturePointText.text = CreaturesPoints.ToString();
 
+        SetupEnemy();
     }
 
-	private void OnDestroy()
+    private void SetupEnemy()
+    {
+        switch (enemyDifficulty)
+        {
+            case DIFFICULTY.EASY:
+                life = easyBaseHealth + (CreaturesPoints - 1) * easyHealthPerLevel;
+                attackDamage = easyBaseDamage + (CreaturesPoints - 1) * easyHealthPerLevel;
+                break;
+            case DIFFICULTY.MEDIUM:
+                life = mediumBaseHealth + (CreaturesPoints - 1) * mediumHealthPerLevel;
+                attackDamage = mediumBaseDamage + (CreaturesPoints - 1) * mediumDamagePerLevel;
+                break;
+            case DIFFICULTY.HARD:
+                life = hardBaseHealth + (CreaturesPoints - 1) * hardHealthPerLevel;
+                attackDamage = hardBaseDamage + (CreaturesPoints - 1) * hardDamagePerLevel;
+                break;
+        }
+    }
+
+    private void OnDestroy()
 	{
 		allEnemies.Remove(this);
 	}
@@ -239,7 +286,8 @@ public class Enemy : MonoBehaviour
 
         // transform used for spawn is attackSpawnPoint.transform if attackSpawnPoint is not null. Else it's transform.
         Transform spawnTransform = attackSpawnPoint ? attackSpawnPoint.transform : transform;
-        GameObject.Instantiate(attackPrefab, spawnTransform.position, spawnTransform.rotation);
+        Attack attackScript = GameObject.Instantiate(attackPrefab, spawnTransform.position, spawnTransform.rotation).GetComponent<Attack>();
+        attackScript.damages = Mathf.FloorToInt(attackDamage);
     }
 
     // Applyhit is called when enemy touches a enemy hitbox.

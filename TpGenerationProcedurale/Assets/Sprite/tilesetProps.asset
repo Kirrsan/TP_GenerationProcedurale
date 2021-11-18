@@ -98,11 +98,11 @@ MonoBehaviour:
     paramContainer:
       m_paramList: []
     prefabData:
-      prefab: {fileID: 0}
+      prefab: {fileID: 1884133654776293533, guid: e3e1bed1ace87f248bd1a44f15976dfc, type: 3}
       offset: {x: 0, y: 0, z: 0}
       rotation: {x: 0, y: 0, z: 0}
       offsetMode: 0
-      showTileWithPrefab: 0
+      showTileWithPrefab: 1
       showPrefabPreviewInTilePalette: 1
     autilingGroup: 0
   - uv:
@@ -117,7 +117,7 @@ MonoBehaviour:
     paramContainer:
       m_paramList: []
     prefabData:
-      prefab: {fileID: 0}
+      prefab: {fileID: 141401822496803911, guid: 69f79ea53e3fba54498f118ba7b44af3, type: 3}
       offset: {x: 0, y: 0, z: 0}
       rotation: {x: 0, y: 0, z: 0}
       offsetMode: 0

@@ -68,6 +68,10 @@ public class Player : MonoBehaviour {
     public GameObject attackPrefab = null;
     public GameObject attackSpawnPoint = null;
     public float attackCooldown = 0.3f;
+
+    public int baseAttackDamage = 30;
+    public int damageIncreasePerPoint = 20;
+
     public ORIENTATION orientation = ORIENTATION.FREE;
 
     private float lastAttackTime = float.MinValue;
@@ -247,8 +251,8 @@ public class Player : MonoBehaviour {
         // transform used for spawn is attackSpawnPoint.transform if attackSpawnPoint is not null. Else it's transform.
         Transform spawnTransform = attackSpawnPoint ? attackSpawnPoint.transform : transform;
         Attack playerAttackScript = GameObject.Instantiate(attackPrefab, spawnTransform.position, spawnTransform.rotation).GetComponent<Attack>();
-        playerAttackScript.damages = _playerPoint + Mathf.FloorToInt(playerAttackScript.damages * attackMultiplier);
-        playerAttackScript.damages += Mathf.FloorToInt(playerAttackScript.damages * attackMultiplier);
+        playerAttackScript.damages = baseAttackDamage + ((_playerPoint-1) * damageIncreasePerPoint);
+        playerAttackScript.damages = playerAttackScript.damages + Mathf.FloorToInt(playerAttackScript.damages * attackMultiplier);
     }
 
     // Applyhit is called when player touches an enemy hitbox or any hazard.

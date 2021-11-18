@@ -26,7 +26,7 @@ public class Door : MonoBehaviour {
     Utils.ORIENTATION _orientation = Utils.ORIENTATION.NONE;
 	public Utils.ORIENTATION Orientation { get { return _orientation; } }
 
-	STATE _state = STATE.OPEN;
+	public STATE _state = STATE.OPEN;
     public POINT_STATE _pointState = POINT_STATE.INFERIOR;
 
     public STATE State { get { return _state; } }
@@ -59,7 +59,6 @@ public class Door : MonoBehaviour {
 
 	public void Start()
     {
-
 		if(closedGo.gameObject.activeSelf)
 		{
 			SetState(STATE.CLOSED);
