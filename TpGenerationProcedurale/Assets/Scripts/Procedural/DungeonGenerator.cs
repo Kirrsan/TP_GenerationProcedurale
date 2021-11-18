@@ -10,6 +10,11 @@ namespace DungeonGenerator
         {
             Default,
             Start,
+            Combat,
+            BonusPoint,
+            Danger,
+            Merchant,
+            Sudoku,
             Secret,
             End,
             NULL
@@ -35,7 +40,7 @@ namespace DungeonGenerator
     }
     public struct Connection
     {
-        public enum Direction
+        public enum Orientation
         {
             North = 0,
             East = 1,
@@ -43,73 +48,77 @@ namespace DungeonGenerator
             West = 3,
             NULL = int.MinValue
         }
+        public Orientation Direction { get; set; }
         public Room DestinationRoom { get; set; }
+        public Room OriginRoom { get; set; }
         public bool hasLock { get; set; }
-        public Connection(Direction direction, Room destination, bool lockRoom)
+        public Connection(Orientation direction, Room origin, Room destination, bool lockRoom)
         {
+            Direction = direction;
+            OriginRoom = origin;
             DestinationRoom = destination;
             hasLock = lockRoom;
         }
     }
-
     public class DungeonGenerator : MonoBehaviour
     {
         public static DungeonGenerator Instance { get; private set; }
-        [Range(3, 100)] public int nbOfRoomsClamp = 5;
+        [Range(3, 2500)] public int nbOfRoomsClamp = 5;
         [Range(0, 9999)] public int difficultyBudget = 10;
         [Header("System")] public int extraTriesClamp = 10;
-        public Vector2 ROOMSIZE = new Vector2(100f, 100f);
+        public List<GameObject> roomPrefab = new List<GameObject>();
+        public Vector2 ROOMSIZE = new Vector2(10f, 10f);
         public RectInt maxLevelSize;
         static List<Room?> rooms = new List<Room?>();
         static List<Connection?> connections = new List<Connection?>();
-        static Connection.Direction RandomDirection
+        static Connection.Orientation RandomOrientation
         {
-            get => (Connection.Direction)Random.Range(0, 4);
+            get => (Connection.Orientation)Random.Range(0, 4);
         }
-        static bool DirectionIsValid(Room roomFrom, Connection.Direction direction)
+        static bool OrientationIsValid(Room roomFrom, Connection.Orientation Orientation)
         {
             Vector2 theoreticalPosition = Vector2.zero;
-            switch (direction)
+            switch (Orientation)
             {
-                case Connection.Direction.North:
+                case Connection.Orientation.North:
                     {
                         theoreticalPosition = new Vector2(roomFrom.Position.x, roomFrom.Position.y + Instance.ROOMSIZE.y);
                     }
                     break;
-                case Connection.Direction.South:
+                case Connection.Orientation.South:
                     {
                         theoreticalPosition = new Vector2(roomFrom.Position.x, roomFrom.Position.y - Instance.ROOMSIZE.y);
                     }
                     break;
-                case Connection.Direction.West:
+                case Connection.Orientation.West:
                     {
                         theoreticalPosition = new Vector2(roomFrom.Position.x - Instance.ROOMSIZE.x, roomFrom.Position.y);
                     }
                     break;
-                case Connection.Direction.East:
+                case Connection.Orientation.East:
                     {
                         theoreticalPosition = new Vector2(roomFrom.Position.x + Instance.ROOMSIZE.x, roomFrom.Position.y);
                     }
                     break;
                 default:
-                    throw new System.NotImplementedException("Direction not supported");
+                    throw new System.NotImplementedException("Orientation not supported");
             }
             return rooms.Find(r => r.Value.Position == theoreticalPosition) == null;
         }
-        static Connection.Direction GenerateValidDirection(Room roomFrom)
+        static Connection.Orientation GenerateValidOrientation(Room roomFrom)
         {
             int safetyNet = 0;
-            Connection.Direction direction = DungeonGenerator.RandomDirection;
-            while (!DirectionIsValid(roomFrom, direction) && safetyNet < 6)
+            Connection.Orientation Orientation = DungeonGenerator.RandomOrientation;
+            while (!OrientationIsValid(roomFrom, Orientation) && safetyNet < 6)
             {
-                if (direction == Connection.Direction.West)
-                    direction = Connection.Direction.North;
+                if (Orientation == Connection.Orientation.West)
+                    Orientation = Connection.Orientation.North;
                 else
-                    direction++;
+                    Orientation++;
                 safetyNet++;
                 continue;
             }
-            return direction;
+            return Orientation;
         }
         static Room SpawnStartRoom(Vector2 startPos)
         {
@@ -119,36 +128,36 @@ namespace DungeonGenerator
         {
             return rooms.FindAll(r => r.Value.Type == type).Count;
         }
-        static Connection BuildAdjacentRoom(Room roomFrom, Connection.Direction direction, Room.RoomType type = Room.RoomType.Default, bool hasLock = false)
+        static Connection BuildAdjacentRoom(Room roomFrom, Connection.Orientation Orientation, Room.RoomType type = Room.RoomType.Default, bool hasLock = false)
         {
-            switch (direction)
+            switch (Orientation)
             {
-                case Connection.Direction.North:
+                case Connection.Orientation.North:
                     {
-                        Connection connection = new Connection(direction, new Room(new Vector2(roomFrom.Position.x, roomFrom.Position.y + Instance.ROOMSIZE.y), type, 0), hasLock);
+                        Connection connection = new Connection(Orientation, roomFrom, new Room(new Vector2(roomFrom.Position.x, roomFrom.Position.y + Instance.ROOMSIZE.y), type, 0), hasLock);
                         roomFrom.Connections.Add(connection);
                         return connection;
                     }
-                case Connection.Direction.South:
+                case Connection.Orientation.South:
                     {
-                        Connection connection = new Connection(direction, new Room(new Vector2(roomFrom.Position.x, roomFrom.Position.y - Instance.ROOMSIZE.y), type, 0), hasLock);
+                        Connection connection = new Connection(Orientation, roomFrom, new Room(new Vector2(roomFrom.Position.x, roomFrom.Position.y - Instance.ROOMSIZE.y), type, 0), hasLock);
                         roomFrom.Connections.Add(connection);
                         return connection;
                     }
-                case Connection.Direction.West:
+                case Connection.Orientation.West:
                     {
-                        Connection connection = new Connection(direction, new Room(new Vector2(roomFrom.Position.x - Instance.ROOMSIZE.x, roomFrom.Position.y), type, 0), hasLock);
+                        Connection connection = new Connection(Orientation, roomFrom, new Room(new Vector2(roomFrom.Position.x - Instance.ROOMSIZE.x, roomFrom.Position.y), type, 0), hasLock);
                         roomFrom.Connections.Add(connection);
                         return connection;
                     }
-                case Connection.Direction.East:
+                case Connection.Orientation.East:
                     {
-                        Connection connection = new Connection(direction, new Room(new Vector2(roomFrom.Position.x + Instance.ROOMSIZE.x, roomFrom.Position.y), type, 0), hasLock);
+                        Connection connection = new Connection(Orientation, roomFrom, new Room(new Vector2(roomFrom.Position.x + Instance.ROOMSIZE.x, roomFrom.Position.y), type, 0), hasLock);
                         roomFrom.Connections.Add(connection);
                         return connection;
                     }
                 default:
-                    throw new System.NotImplementedException("Direction not supported");
+                    throw new System.NotImplementedException("Orientation not supported");
             }
         }
         static bool CheckAdjacentRoom(Room roomToProbe)
@@ -211,18 +220,24 @@ namespace DungeonGenerator
                             continue;
                         case 1:
                             {
-                                Connection con = BuildAdjacentRoom(latestSpawnedRoom.Value, Connection.Direction.East);
-                                connections.Add(con);
-                                rooms.Add(con.DestinationRoom);
-                                latestSpawnedRoom = con.DestinationRoom;
+                                if(OrientationIsValid(previousRoom.Value, Connection.Orientation.East))
+                                {
+                                    Connection con = BuildAdjacentRoom(latestSpawnedRoom.Value, Connection.Orientation.East);
+                                    connections.Add(con);
+                                    rooms.Add(con.DestinationRoom);
+                                    latestSpawnedRoom = con.DestinationRoom;
+                                }
                                 break;
                             }
                         case -1:
                             {
-                                Connection con = BuildAdjacentRoom(latestSpawnedRoom.Value, Connection.Direction.West);
-                                connections.Add(con);
-                                rooms.Add(con.DestinationRoom);
-                                latestSpawnedRoom = con.DestinationRoom;
+                                if (OrientationIsValid(previousRoom.Value, Connection.Orientation.West))
+                                {
+                                    Connection con = BuildAdjacentRoom(latestSpawnedRoom.Value, Connection.Orientation.West);
+                                    connections.Add(con);
+                                    rooms.Add(con.DestinationRoom);
+                                    latestSpawnedRoom = con.DestinationRoom;
+                                }
                                 break;
                             }
                     }
@@ -237,18 +252,24 @@ namespace DungeonGenerator
                             continue;
                         case 1:
                             {
-                                Connection con = BuildAdjacentRoom(latestSpawnedRoom.Value, Connection.Direction.North);
-                                connections.Add(con);
-                                rooms.Add(con.DestinationRoom);
-                                latestSpawnedRoom = con.DestinationRoom;
+                                if (OrientationIsValid(previousRoom.Value, Connection.Orientation.North))
+                                {
+                                    Connection con = BuildAdjacentRoom(latestSpawnedRoom.Value, Connection.Orientation.North);
+                                    connections.Add(con);
+                                    rooms.Add(con.DestinationRoom);
+                                    latestSpawnedRoom = con.DestinationRoom;
+                                }
                                 break;
                             }
                         case -1:
                             {
-                                Connection con = BuildAdjacentRoom(latestSpawnedRoom.Value, Connection.Direction.South);
-                                connections.Add(con);
-                                rooms.Add(con.DestinationRoom);
-                                latestSpawnedRoom = con.DestinationRoom;
+                                if (OrientationIsValid(previousRoom.Value, Connection.Orientation.South))
+                                {
+                                    Connection con = BuildAdjacentRoom(latestSpawnedRoom.Value, Connection.Orientation.South);
+                                    connections.Add(con);
+                                    rooms.Add(con.DestinationRoom);
+                                    latestSpawnedRoom = con.DestinationRoom;
+                                }
                                 break;
                             }
                     }
@@ -266,7 +287,7 @@ namespace DungeonGenerator
             Vector2 startPosition = Vector2.zero;
             int roomsSpawned = 0;
             int mainRouteBudget = Instance.nbOfRoomsClamp;
-            Connection.Direction latestDirection = Connection.Direction.NULL;
+            Connection.Orientation latestOrientation = Connection.Orientation.NULL;
             Room? previousRoom;
             Room? lastestSpawnedRoom = null;
             //PREREQUISITES
@@ -289,8 +310,8 @@ namespace DungeonGenerator
                 }
                 if (roomsSpawned + 1 == Instance.nbOfRoomsClamp)
                 {
-                    latestDirection = GenerateValidDirection(previousRoom.Value);
-                    Connection con = BuildAdjacentRoom(previousRoom.Value, latestDirection, Room.RoomType.End);
+                    latestOrientation = GenerateValidOrientation(previousRoom.Value);
+                    Connection con = BuildAdjacentRoom(previousRoom.Value, latestOrientation, Room.RoomType.End);
                     connections.Add(con);
                     lastestSpawnedRoom = con.DestinationRoom;
                     rooms.Add(lastestSpawnedRoom.Value);
@@ -298,9 +319,9 @@ namespace DungeonGenerator
                     break;
                 }
                 {
-                    //TODO : Track Direction to have even room distribution on the grid space
-                    latestDirection = GenerateValidDirection(previousRoom.Value);
-                    Connection con = BuildAdjacentRoom(previousRoom.Value, latestDirection);
+                    //TODO : Track Orientation to have even room distribution on the grid space
+                    latestOrientation = GenerateValidOrientation(previousRoom.Value);
+                    Connection con = BuildAdjacentRoom(previousRoom.Value, latestOrientation);
                     connections.Add(con);
                     lastestSpawnedRoom = con.DestinationRoom;
                     rooms.Add(lastestSpawnedRoom.Value);
@@ -340,11 +361,15 @@ namespace DungeonGenerator
             Debug.Log("Number of extra tries needed to generate dungeon : " + nbOfExtraTries);
             string mapstring = "Map :" + "\n";
             foreach (Room room in rooms)
+            {
                 mapstring += "I am a " + room.Type + " room at " + room.Position + ", Difficulty : " + room.Difficulty + "\n";
-            Debug.Log(mapstring);
-            UnityEditor.EditorApplication.isPlaying = false;
+                GameObject roomGO = Instantiate(roomPrefab[(int)room.Type]);
+                roomGO.transform.parent = transform;
+                roomGO.transform.position = room.Position;
+            }
+                
+            Debug.Log(mapstring);  
 #endif
-            Application.Quit();
         }
         // Update is called once per frame
         void Update()
