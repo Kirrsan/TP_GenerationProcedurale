@@ -102,7 +102,7 @@ public class Player : MonoBehaviour {
 
     //multiplier
     private float attackMultiplier = 0;
-    private float defenseMultiplier = 0;
+    private float healthMultiplier = 0;
     private float speedMultiplier = 0;
 
 
@@ -119,7 +119,7 @@ public class Player : MonoBehaviour {
         _playerPoint = startPoints;
         life = _playerPoint;
         scoreText.text = _playerPoint.ToString();
-        Hud.Instance.SetSliderValuesToPointsValues(_playerPoint);
+        Hud.Instance.SetSliderValuesToPointsValues(_playerPoint + Mathf.FloorToInt(_playerPoint * healthMultiplier));
     }
 
     // Update is called once per frame
@@ -342,6 +342,7 @@ public class Player : MonoBehaviour {
 	public void EnterRoom(Room room)
 	{
 		_room = room;
+        life = _playerPoint + Mathf.FloorToInt(_playerPoint * healthMultiplier);
 	}
 
     public int GetPoint()
@@ -351,11 +352,11 @@ public class Player : MonoBehaviour {
 
     public void SetLifeToPoint()
     {
-        if(life > _playerPoint)
+        if(life > _playerPoint + Mathf.FloorToInt(_playerPoint * healthMultiplier))
         {
-            life = _playerPoint;
+            life = _playerPoint + Mathf.FloorToInt(_playerPoint * healthMultiplier);
         }
-        if(life <= 0)
+        if (life <= 0)
         {
             SetState(STATE.DEAD);
         }
@@ -366,7 +367,7 @@ public class Player : MonoBehaviour {
         _playerPoint -= pointsToSpend;
         SetLifeToPoint();
         scoreText.text = _playerPoint.ToString();
-        Hud.Instance.SetSliderValuesToPointsValues(_playerPoint);
+        Hud.Instance.SetSliderValuesToPointsValues(_playerPoint + Mathf.FloorToInt(_playerPoint * healthMultiplier));
     }
 
     public void SpendPointsToMin1Hp(int pointsToSpend)
@@ -381,7 +382,7 @@ public class Player : MonoBehaviour {
         }
         SetLifeToPoint();
         scoreText.text = _playerPoint.ToString();
-        Hud.Instance.SetSliderValuesToPointsValues(_playerPoint);
+        Hud.Instance.SetSliderValuesToPointsValues(_playerPoint + Mathf.FloorToInt(_playerPoint * healthMultiplier));
     }
 
     public bool SpendPointsBlock(int pointsToSpend)
@@ -395,16 +396,23 @@ public class Player : MonoBehaviour {
         _playerPoint -= pointsToSpend;
         SetLifeToPoint();
         scoreText.text = _playerPoint.ToString();
-        Hud.Instance.SetSliderValuesToPointsValues(_playerPoint);
+        Hud.Instance.SetSliderValuesToPointsValues(_playerPoint + Mathf.FloorToInt(_playerPoint * healthMultiplier));
         return true;
     }
 
     public void AddPoints(int pointsToAdd)
     {
         _playerPoint += pointsToAdd;
-        life += pointsToAdd;
+        if(life + pointsToAdd < _playerPoint + Mathf.FloorToInt(_playerPoint * healthMultiplier))
+        {
+            life += pointsToAdd;
+        }
+        else
+        {
+            life = _playerPoint + Mathf.FloorToInt(_playerPoint * healthMultiplier);
+        }
         scoreText.text = _playerPoint.ToString();
-        Hud.Instance.SetSliderValuesToPointsValues(_playerPoint);
+        Hud.Instance.SetSliderValuesToPointsValues(_playerPoint + Mathf.FloorToInt(_playerPoint * healthMultiplier));
     }
 
     public void AddToAttackMultiplier(float multiplierToAdd)
@@ -412,9 +420,9 @@ public class Player : MonoBehaviour {
         attackMultiplier += multiplierToAdd;
     }
 
-    public void AddToDefenseMultiplier(float multiplierToAdd)
+    public void AddToHealthMultiplier(float multiplierToAdd)
     {
-        defenseMultiplier += multiplierToAdd;
+        healthMultiplier += multiplierToAdd;
     }    
     
     public void AddToSpeedMultiplier(float multiplierToAdd)

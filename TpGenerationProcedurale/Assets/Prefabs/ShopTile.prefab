@@ -176,7 +176,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   typeOfItem: 0
   attackObj: {fileID: 8354332352996101722}
-  defenseObj: {fileID: 8354332352931833522}
+  healthObj: {fileID: 8354332352931833522}
   speedObj: {fileID: 8354332353836177367}
   itemStatMultiplier: 2
   itemCost: 20
@@ -297,7 +297,7 @@ GameObject:
   - component: {fileID: 8354332352931833422}
   - component: {fileID: 8354332352931833423}
   m_Layer: 5
-  m_Name: DefenseObj
+  m_Name: HealthObj
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -364,7 +364,9 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Defense
+  m_Text: 'HealthUp
+
+'
 --- !u!1 &8354332352996101722
 GameObject:
   m_ObjectHideFlags: 0
@@ -444,7 +446,9 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Attack
+  m_Text: 'AttackUp
+
+'
 --- !u!1 &8354332353836177367
 GameObject:
   m_ObjectHideFlags: 0
@@ -524,4 +528,6 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Speed
+  m_Text: 'SpeedUp
+
+'
