@@ -92,19 +92,22 @@ public class Enemy : MonoBehaviour
     [Header("DifficultyLevels")]
     public DIFFICULTY enemyDifficulty = DIFFICULTY.EASY;
 
-
+    [Space]
     public int easyBaseHealth = 100;
     public int mediumBaseHealth = 500;
     public int hardBaseHealth = 1500;
 
+    [Space]
     public int easyHealthPerLevel = 10;
     public int mediumHealthPerLevel = 10;
     public int hardHealthPerLevel = 10;
 
+    [Space]
     public float easyBaseDamage = 1;
     public float mediumBaseDamage = 5;
     public float hardBaseDamage = 10;
 
+    [Space]
     public float easyDamagePerLevel = 0.2f;
     public float mediumDamagePerLevel = 0.25f;
     public float hardDamagePerLevel = 0.3f;

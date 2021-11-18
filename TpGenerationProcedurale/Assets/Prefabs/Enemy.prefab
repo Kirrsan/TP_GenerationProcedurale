@@ -325,7 +325,7 @@ GameObject:
   - component: {fileID: 1940373930646248325}
   m_Layer: 0
   m_Name: Enemy
-  m_TagString: Untagged
+  m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -424,6 +424,19 @@ MonoBehaviour:
   attackDistance: 0.9
   attackCooldown: 0.5
   orientation: 1
+  enemyDifficulty: 0
+  easyBaseHealth: 100
+  mediumBaseHealth: 500
+  hardBaseHealth: 1500
+  easyHealthPerLevel: 10
+  mediumHealthPerLevel: 10
+  hardHealthPerLevel: 10
+  easyBaseDamage: 1
+  mediumBaseDamage: 5
+  hardBaseDamage: 10
+  easyDamagePerLevel: 0.2
+  mediumDamagePerLevel: 0.25
+  hardDamagePerLevel: 0.3
   PointToGive: 1
   CreaturesPoints: 5
   CreaturePointText: {fileID: 3317071408202511632}
