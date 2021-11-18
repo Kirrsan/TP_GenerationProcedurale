@@ -8,7 +8,7 @@ namespace DungeonGenerator
         public enum RoomType
         {
             NULL = int.MinValue,
-            Start,
+            Start = 0,
             Classic,
             Trap,
             Danger,
@@ -16,14 +16,14 @@ namespace DungeonGenerator
             Merchant,
             Secret,
             End,
-            
+
         }
         public enum RoomDifficulty
         {
             NULL = int.MinValue,
-            Easy,
-            Medium,
-            Hard
+            Easy = 0,
+            Medium = 1,
+            Hard = 2
         }
         public Vector2Int Position { get; set; }
         public List<ConnectionNode?> Connections { get; set; }
@@ -90,11 +90,14 @@ namespace DungeonGenerator
         [Range(3, 2500)] public int nbOfRoomsClamp = 5;
         [Range(0, 9999)] public int difficultyBudget = 10;
         [Header("System")] public int extraTriesClamp = 10;
+        public GameObject prefabStart;
+        public GameObject prefabEnd;
         public List<GameObject> prefabClassic = new List<GameObject>(3);
         public List<GameObject> prefabTrap = new List<GameObject>(3);
-        public List<GameObject> prefabtDanger = new List<GameObject>(3);
+        public List<GameObject> prefabDanger = new List<GameObject>(3);
         public List<GameObject> prefabSafe = new List<GameObject>(3);
         public List<GameObject> prefabShop = new List<GameObject>(3);
+        public List<GameObject> prefabSecret = new List<GameObject>(3);
         public Vector2Int ROOMSIZE = new Vector2Int(11, 9);
         public RectInt maxLevelSize;
         public static List<RoomNode?> rooms = new List<RoomNode?>();
@@ -158,7 +161,7 @@ namespace DungeonGenerator
                 continue;
             }
 
-            if(safetyNet >= 6)
+            if (safetyNet >= 6)
             {
                 return ConnectionNode.Orientation.NULL;
             }
@@ -177,7 +180,7 @@ namespace DungeonGenerator
         {
             return rooms.FindAll(r => r.Value.Type == type).Count;
         }
-        static ConnectionNode BuildAdjacentRoom(RoomNode roomFrom, ConnectionNode.Orientation Orientation, RoomNode.RoomType type = RoomNode.RoomType.Classic, bool isPrimary = false, bool hasLock = false, int cost = 0)
+        static ConnectionNode BuildAdjacentRoom(RoomNode roomFrom, ConnectionNode.Orientation Orientation, RoomNode.RoomType type = RoomNode.RoomType.Classic, RoomNode.RoomDifficulty difficulty = RoomNode.RoomDifficulty.Easy, bool isPrimary = false, bool hasLock = false, int cost = 0)
         {
             switch (Orientation)
             {
@@ -244,7 +247,7 @@ namespace DungeonGenerator
             (r.Value.Position == roomToProbe.Position + new Vector2(0, Instance.ROOMSIZE.y) && r.Value.Type == type) ||
             (r.Value.Position == roomToProbe.Position - new Vector2(0, Instance.ROOMSIZE.y) && r.Value.Type == type)) != null;
         }
-        static bool BuildPrimaryPath(Vector2Int startPos, int roomBudget)
+        static bool BuildPrimaryPath(Vector2Int startPos, int roomBudget, bool isFirstPath = false)
         {
             int roomsSpawned = 0;
             int roomPerDifficulty = roomBudget / 3;
@@ -255,9 +258,9 @@ namespace DungeonGenerator
             float weightSafe = 0.2f;
             float weightShop = 0.2f;
             //Room difficulty
-            float weightEasy = 1f;
-            float weightMedium = 0f;
-            float weighhtHard = 0f;
+            float weightEasy = 0.8f;
+            float weightMedium = 0.15f;
+            float weighhtHard = 0.05f;
             ConnectionNode.Orientation latestOrientation = ConnectionNode.Orientation.NULL;
             RoomNode? previousRoom;
             RoomNode? latestSpawnedRoom = null;
@@ -273,10 +276,23 @@ namespace DungeonGenerator
                 previousRoom = latestSpawnedRoom;
                 float sampleRoomType = RandomFloat;
                 float sampleDifficulty = RandomFloat;
+                
+                if(roomsSpawned > (1/3) * roomBudget)
+                {
+                    weightEasy = 0.15f;
+                    weightMedium = 0.70f;
+                    weighhtHard = 0.15f;
+                }
+                if (roomsSpawned > (2 / 3) * roomBudget)
+                {
+                    weightEasy = 0.05f;
+                    weightMedium = 0.15f;
+                    weighhtHard = 0.80f;
+                }
 
-                if(sampleRoomType > weightClassic)
+                if (sampleRoomType > weightClassic)
                     if (sampleDifficulty > weightClassic + weightTrap)
-                        if(sampleDifficulty > weightClassic + weightTrap + weightDanger)
+                        if (sampleDifficulty > weightClassic + weightTrap + weightDanger)
                             if (sampleDifficulty > weightClassic + weightTrap + weightDanger + weightSafe)
                                 selectedRoomType = RoomNode.RoomType.Merchant;
                             else selectedRoomType = RoomNode.RoomType.Safe;
@@ -295,13 +311,13 @@ namespace DungeonGenerator
                     case RoomNode.RoomType.Merchant:
                         {
                             weightShop -= 0.1f;
-                            if(weightShop < 0) weightShop = 0;
+                            if (weightShop < 0) weightShop = 0;
                             weightDanger += 0.025f;
                             weightSafe += 0.025f;
                             weightTrap += 0.025f;
                             weightClassic += 0.025f;
                         }
-                    break;
+                        break;
                     case RoomNode.RoomType.Safe:
                         {
                             weightSafe -= 0.1f;
@@ -352,18 +368,18 @@ namespace DungeonGenerator
                     roomsSpawned++;
 
                     //Spawn first combat room
-                    latestSpawnedRoom = BuildAdjacentRoom(latestSpawnedRoom.Value, ConnectionNode.Orientation.East, RoomNode.RoomType.Trap, true).DestinationRoom;
+                    latestSpawnedRoom = BuildAdjacentRoom(latestSpawnedRoom.Value, ConnectionNode.Orientation.East, RoomNode.RoomType.Classic, RoomNode.RoomDifficulty.Easy, isFirstPath).DestinationRoom;
                     rooms.Add(latestSpawnedRoom);
                     roomsSpawned++;
 
-                    latestSpawnedRoom = BuildAdjacentRoom(latestSpawnedRoom.Value, ConnectionNode.Orientation.East, RoomNode.RoomType.Classic, true, true, 5).DestinationRoom;
+                    latestSpawnedRoom = BuildAdjacentRoom(latestSpawnedRoom.Value, ConnectionNode.Orientation.East, RoomNode.RoomType.Safe, RoomNode.RoomDifficulty.Easy, isFirstPath, true, 5).DestinationRoom;
                     rooms.Add(latestSpawnedRoom);
                     roomsSpawned++;
                     startingSequenceSpawned = true;
-                    
+
                     continue;
                 }
-                else if(!previousRoom.HasValue)
+                else if (!previousRoom.HasValue)
                 {
                     previousRoom = rooms.Find(r => r.Value.Position == startPos);
                 }
@@ -375,7 +391,7 @@ namespace DungeonGenerator
                     {
                         return false;
                     }
-                    ConnectionNode con = BuildAdjacentRoom(previousRoom.Value, latestOrientation, RoomNode.RoomType.End, true, true, 0);
+                    ConnectionNode con = BuildAdjacentRoom(previousRoom.Value, latestOrientation, RoomNode.RoomType.End, RoomNode.RoomDifficulty.Hard, isFirstPath, true, 0);
                     connections.Add(con);
                     latestSpawnedRoom = con.DestinationRoom;
                     rooms.Add(latestSpawnedRoom.Value);
@@ -385,10 +401,10 @@ namespace DungeonGenerator
                 {
                     //TODO : Track Orientation to have even room distribution on the grid space
                     latestOrientation = GenerateValidOrientation(previousRoom.Value);
-                    if(latestOrientation == ConnectionNode.Orientation.NULL)
+                    if (latestOrientation == ConnectionNode.Orientation.NULL)
                         return false;
-                    
-                    ConnectionNode con = BuildAdjacentRoom(previousRoom.Value, latestOrientation, RoomNode.RoomType.Classic, true);
+
+                    ConnectionNode con = BuildAdjacentRoom(previousRoom.Value, latestOrientation, selectedRoomType, selectedDifficulty, isFirstPath);
                     connections.Add(con);
                     latestSpawnedRoom = con.DestinationRoom;
                     rooms.Add(latestSpawnedRoom.Value);
@@ -517,12 +533,13 @@ namespace DungeonGenerator
             startingSequenceSpawned = false;
             endRoomSpawned = false;
 
-            if (BuildPrimaryPath(Vector2Int.zero, Instance.nbOfRoomsClamp))
+            if (BuildPrimaryPath(Vector2Int.zero, Instance.nbOfRoomsClamp, true))
             {
                 RoomNode secondaryPathStart = rooms[3].Value;
-                
+
                 if (BuildPrimaryPath(secondaryPathStart.Position, 20))
                 {
+                    rooms.Add(BuildAdjacentRoom(rooms[rooms.Count - 1].Value, GenerateValidOrientation(rooms[rooms.Count - 1].Value), RoomNode.RoomType.Secret, RandomFloat > 0.5f ? RoomNode.RoomDifficulty.Hard : RoomNode.RoomDifficulty.Medium).DestinationRoom);  
                     secondaryPathStart = rooms[7].Value;
                     if (BuildPrimaryPath(secondaryPathStart.Position, 20))
                     {
@@ -564,7 +581,6 @@ namespace DungeonGenerator
             int nbOfExtraTries = 0;
             while (nbOfExtraTries < extraTriesClamp && !GenerateDungeonLoop())
                 nbOfExtraTries++;
-#if UNITY_EDITOR
             Debug.Log("Number of extra tries needed to generate dungeon : " + nbOfExtraTries);
             string mapstring = "Map :" + "\n";
             bool hasHadPrimaryDoor = false;
@@ -577,82 +593,126 @@ namespace DungeonGenerator
                 foreach (ConnectionNode connection in room.Connections)
                     mapstring += connection.Direction + " ,";
                 mapstring += "\n";
-                GameObject roomGO = Instantiate(/*roomPrefab[(int)room.Type]*/ new GameObject());
-                roomGO.GetComponent<Room>().position = room.Position;
-                //TODO : Do the Doors
-                Room roomComponent = roomGO.GetComponent<Room>();
-                int i = 0;
-                foreach (Door door in roomComponent.GetAllDoorInRoom())
+                GameObject roomGO = null;
+                switch (room.Type)
                 {
-                    ConnectionNode? connectionNode = null;
-                    switch (i)
-                    {
-                        case 0:
-                            {
-                                if (room.Connections.Find(c => c.Value.Direction == ConnectionNode.Orientation.North).HasValue)
-                                    connectionNode = room.Connections.Find(c => c.Value.Direction == ConnectionNode.Orientation.North).Value;
-                                break;
-                            }
-
-                        case 2:
-                            {
-                                if (room.Connections.Find(c => c.Value.Direction == ConnectionNode.Orientation.South).HasValue)
-                                    connectionNode = room.Connections.Find(c => c.Value.Direction == ConnectionNode.Orientation.South).Value;
-                                break;
-                            }
-
-                        case 3:
-                            {
-                                if (room.Connections.Find(c => c.Value.Direction == ConnectionNode.Orientation.West).HasValue)
-                                    connectionNode = room.Connections.Find(c => c.Value.Direction == ConnectionNode.Orientation.West).Value;
-                                break;
-                            }
-
-                        case 1:
-                            {
-                                if (room.Connections.Find(c => c.Value.Direction == ConnectionNode.Orientation.East).HasValue)
-                                    connectionNode = room.Connections.Find(c => c.Value.Direction == ConnectionNode.Orientation.East).Value;
-                                break;
-                            }
-                    }
-                    if (connectionNode != null)
-                    {
-                        if (connectionNode.Value.IsSecret)
-                            door.SetState(Door.STATE.SECRET);
-                        else if (connectionNode.Value.HasLock)
+                    case RoomNode.RoomType.Start:
                         {
-                            if (room.IsPrimary && connectionNode.Value.DestinationRoom.IsPrimary 
-                                && lastPrimaryNodeWithDoor.Position != connectionNode.Value.DestinationRoom.Position)
+                            roomGO = Instantiate(prefabStart);
+                        }
+                        break;
+                    case RoomNode.RoomType.Classic:
+                        {
+                            roomGO = Instantiate(prefabClassic[(int)room.Difficulty]);
+                        }
+                        break;
+                    case RoomNode.RoomType.Trap:
+                        {
+                            roomGO = Instantiate(prefabTrap[(int)room.Difficulty]);
+                        }
+                        break;
+                    case RoomNode.RoomType.Danger:
+                        {
+                            roomGO = Instantiate(prefabDanger[(int)room.Difficulty]);
+                        }
+                        break;
+                    case RoomNode.RoomType.Safe:
+                        {
+                            roomGO = Instantiate(prefabSafe[(int)room.Difficulty]);
+                        }
+                        break;
+                    case RoomNode.RoomType.Merchant:
+                        {
+                            roomGO = Instantiate(prefabShop[(int)room.Difficulty]);
+                        }
+                        break;
+                    case RoomNode.RoomType.Secret:
+                        {
+                            roomGO = Instantiate(prefabSecret[(int)room.Difficulty]);
+                        }
+                        break;
+                    case RoomNode.RoomType.End:
+                        {
+                            roomGO = Instantiate(prefabEnd);
+                        }
+                        break;
+                }
+                if (roomGO && roomGO.TryGetComponent(out Room broom))
+                {
+                    broom.position = room.Position;
+                    //TODO : Do the Doors
+                    Room roomComponent = broom;
+                    int i = 0;
+                    foreach (Door door in roomComponent.GetAllDoorInRoom())
+                    {
+                        ConnectionNode? connectionNode = null;
+                        switch (i)
+                        {
+                            case 0:
+                                {
+                                    if (room.Connections.Find(c => c.Value.Direction == ConnectionNode.Orientation.North).HasValue)
+                                        connectionNode = room.Connections.Find(c => c.Value.Direction == ConnectionNode.Orientation.North).Value;
+                                    break;
+                                }
+
+                            case 2:
+                                {
+                                    if (room.Connections.Find(c => c.Value.Direction == ConnectionNode.Orientation.South).HasValue)
+                                        connectionNode = room.Connections.Find(c => c.Value.Direction == ConnectionNode.Orientation.South).Value;
+                                    break;
+                                }
+
+                            case 3:
+                                {
+                                    if (room.Connections.Find(c => c.Value.Direction == ConnectionNode.Orientation.West).HasValue)
+                                        connectionNode = room.Connections.Find(c => c.Value.Direction == ConnectionNode.Orientation.West).Value;
+                                    break;
+                                }
+
+                            case 1:
+                                {
+                                    if (room.Connections.Find(c => c.Value.Direction == ConnectionNode.Orientation.East).HasValue)
+                                        connectionNode = room.Connections.Find(c => c.Value.Direction == ConnectionNode.Orientation.East).Value;
+                                    break;
+                                }
+                        }
+                        if (connectionNode != null)
+                        {
+                            if (connectionNode.Value.IsSecret)
+                                door.SetState(Door.STATE.SECRET);
+                            else if (connectionNode.Value.HasLock)
                             {
-                                door.SetIsPrimaryPath();
-                                door.SetDoorCostIfPrimary(hasHadPrimaryDoor);
-                                if (!hasHadPrimaryDoor)
+                                if (room.IsPrimary && connectionNode.Value.DestinationRoom.IsPrimary
+                                    && lastPrimaryNodeWithDoor.Position != connectionNode.Value.DestinationRoom.Position)
                                 {
-                                    firstDoorIndex = roomIndex;
-                                    hasHadPrimaryDoor = true;
+                                    door.SetIsPrimaryPath();
+                                    door.SetDoorCostIfPrimary(hasHadPrimaryDoor);
+                                    if (!hasHadPrimaryDoor)
+                                    {
+                                        firstDoorIndex = roomIndex;
+                                        hasHadPrimaryDoor = true;
+                                    }
+                                    else
+                                    {
+                                        secondDoorIndex = roomIndex;
+                                    }
+                                    lastPrimaryNodeWithDoor = room;
                                 }
-                                else
-                                {
-                                    secondDoorIndex = roomIndex;
-                                }
-                                lastPrimaryNodeWithDoor = room;
+                                door.SetState(Door.STATE.CLOSED);
                             }
-                            door.SetState(Door.STATE.CLOSED);
+                            else
+                                door.SetState(Door.STATE.OPEN);
                         }
                         else
-                            door.SetState(Door.STATE.OPEN);
+                            door.SetState(Door.STATE.WALL);
+                        i++;
                     }
-                    else
-                        door.SetState(Door.STATE.WALL);
-                    i++;
+                    roomGO.transform.parent = transform;
+                    roomGO.transform.position = new Vector2(room.Position.x, room.Position.y);
                 }
-                roomGO.transform.parent = transform;
-                roomGO.transform.position = new Vector2(room.Position.x, room.Position.y);
                 ++roomIndex;
             }
-
             Debug.Log(mapstring);
-#endif
         }
         // Update is called once per frame
         void Update()

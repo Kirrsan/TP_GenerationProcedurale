@@ -47,16 +47,32 @@ MonoBehaviour:
   nbOfRoomsClamp: 25
   difficultyBudget: 20
   extraTriesClamp: 10
-  roomPrefab:
+  prefabStart: {fileID: 3792475177106313155, guid: dbd176034832ebe4ead5140341ea30dc, type: 3}
+  prefabEnd: {fileID: 7559102900497746808, guid: 8b0062dcb6a669d4692dbde3a5387136, type: 3}
+  prefabClassic:
+  - {fileID: 1707978708948488996, guid: 4c459fd3ca443f84da25dd555546d927, type: 3}
+  - {fileID: 8359386606548158995, guid: 40952c4e5fe19a5449011af48b93d380, type: 3}
+  - {fileID: 5591714764779116758, guid: d5637200fdf88ee419b747e901a90845, type: 3}
+  prefabTrap:
+  - {fileID: 1328971352792018056, guid: c1c818b1133bec94fb2ee7346fac6094, type: 3}
+  - {fileID: 6831930824602547314, guid: 859888ddc0d0c5043a0b7c2402851e93, type: 3}
+  - {fileID: 7739836648753399684, guid: 80647b26b09f5284dae46dcdc44249df, type: 3}
+  prefabDanger:
+  - {fileID: 364269013713837659, guid: 5c3fb0a66ffe6a341a016b98c146c788, type: 3}
+  - {fileID: 364269013713837659, guid: 5c3fb0a66ffe6a341a016b98c146c788, type: 3}
+  - {fileID: 364269013713837659, guid: 5c3fb0a66ffe6a341a016b98c146c788, type: 3}
+  prefabSafe:
+  - {fileID: 364269013713837659, guid: 5c3fb0a66ffe6a341a016b98c146c788, type: 3}
+  - {fileID: 8654517854407297031, guid: b3d3cda177ef08b4fa9b54f2dfcc8786, type: 3}
+  - {fileID: 2877156955371454143, guid: 7f57acd6b5e328447b5385149df26ae7, type: 3}
+  prefabShop:
+  - {fileID: 364269013713837659, guid: 5c3fb0a66ffe6a341a016b98c146c788, type: 3}
+  - {fileID: 364269013713837659, guid: 5c3fb0a66ffe6a341a016b98c146c788, type: 3}
+  - {fileID: 364269013713837659, guid: 5c3fb0a66ffe6a341a016b98c146c788, type: 3}
+  prefabSecret:
   - {fileID: 1885995621766886527, guid: aa1cb305f74755044ad9d3d041bbd224, type: 3}
-  - {fileID: 3792475177106313155, guid: dbd176034832ebe4ead5140341ea30dc, type: 3}
   - {fileID: 1885995621766886527, guid: aa1cb305f74755044ad9d3d041bbd224, type: 3}
   - {fileID: 1885995621766886527, guid: aa1cb305f74755044ad9d3d041bbd224, type: 3}
-  - {fileID: 1885995621766886527, guid: aa1cb305f74755044ad9d3d041bbd224, type: 3}
-  - {fileID: 1885995621766886527, guid: aa1cb305f74755044ad9d3d041bbd224, type: 3}
-  - {fileID: 1885995621766886527, guid: aa1cb305f74755044ad9d3d041bbd224, type: 3}
-  - {fileID: 1885995621766886527, guid: aa1cb305f74755044ad9d3d041bbd224, type: 3}
-  - {fileID: 7559102900497746808, guid: 8b0062dcb6a669d4692dbde3a5387136, type: 3}
   ROOMSIZE: {x: 11, y: 9}
   maxLevelSize:
     x: 0
