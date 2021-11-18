@@ -678,49 +678,9 @@ PrefabInstance:
       value: DungeonMap
       objectReference: {fileID: 0}
     - target: {fileID: 7437905767385699708, guid: 59edd2d0bfaa3744f8566386bb5fd29a, type: 3}
-      propertyPath: nbOfRoomsClamp
-      value: 10
+      propertyPath: extraTriesClamp
+      value: 500
       objectReference: {fileID: 0}
-    - target: {fileID: 7437905767385699708, guid: 59edd2d0bfaa3744f8566386bb5fd29a, type: 3}
-      propertyPath: prefabSecret.Array.size
-      value: 3
-      objectReference: {fileID: 0}
-    - target: {fileID: 7437905767385699708, guid: 59edd2d0bfaa3744f8566386bb5fd29a, type: 3}
-      propertyPath: prefabShop.Array.data[0]
-      value: 
-      objectReference: {fileID: 364269013713837659, guid: 5c3fb0a66ffe6a341a016b98c146c788, type: 3}
-    - target: {fileID: 7437905767385699708, guid: 59edd2d0bfaa3744f8566386bb5fd29a, type: 3}
-      propertyPath: prefabShop.Array.data[1]
-      value: 
-      objectReference: {fileID: 364269013713837659, guid: 5c3fb0a66ffe6a341a016b98c146c788, type: 3}
-    - target: {fileID: 7437905767385699708, guid: 59edd2d0bfaa3744f8566386bb5fd29a, type: 3}
-      propertyPath: prefabShop.Array.data[2]
-      value: 
-      objectReference: {fileID: 364269013713837659, guid: 5c3fb0a66ffe6a341a016b98c146c788, type: 3}
-    - target: {fileID: 7437905767385699708, guid: 59edd2d0bfaa3744f8566386bb5fd29a, type: 3}
-      propertyPath: prefabDanger.Array.data[0]
-      value: 
-      objectReference: {fileID: 364269013713837659, guid: 5c3fb0a66ffe6a341a016b98c146c788, type: 3}
-    - target: {fileID: 7437905767385699708, guid: 59edd2d0bfaa3744f8566386bb5fd29a, type: 3}
-      propertyPath: prefabDanger.Array.data[1]
-      value: 
-      objectReference: {fileID: 364269013713837659, guid: 5c3fb0a66ffe6a341a016b98c146c788, type: 3}
-    - target: {fileID: 7437905767385699708, guid: 59edd2d0bfaa3744f8566386bb5fd29a, type: 3}
-      propertyPath: prefabDanger.Array.data[2]
-      value: 
-      objectReference: {fileID: 364269013713837659, guid: 5c3fb0a66ffe6a341a016b98c146c788, type: 3}
-    - target: {fileID: 7437905767385699708, guid: 59edd2d0bfaa3744f8566386bb5fd29a, type: 3}
-      propertyPath: prefabSecret.Array.data[0]
-      value: 
-      objectReference: {fileID: 1885995621766886527, guid: aa1cb305f74755044ad9d3d041bbd224, type: 3}
-    - target: {fileID: 7437905767385699708, guid: 59edd2d0bfaa3744f8566386bb5fd29a, type: 3}
-      propertyPath: prefabSecret.Array.data[1]
-      value: 
-      objectReference: {fileID: 1885995621766886527, guid: aa1cb305f74755044ad9d3d041bbd224, type: 3}
-    - target: {fileID: 7437905767385699708, guid: 59edd2d0bfaa3744f8566386bb5fd29a, type: 3}
-      propertyPath: prefabSecret.Array.data[2]
-      value: 
-      objectReference: {fileID: 1885995621766886527, guid: aa1cb305f74755044ad9d3d041bbd224, type: 3}
     - target: {fileID: 7437905767385699709, guid: 59edd2d0bfaa3744f8566386bb5fd29a, type: 3}
       propertyPath: m_RootOrder
       value: 0
