@@ -651,6 +651,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   isStartRoom: 1
   position: {x: 0, y: 0}
+  roomDifficulty: 2
 --- !u!50 &5591714764779116763
 Rigidbody2D:
   serializedVersion: 4
