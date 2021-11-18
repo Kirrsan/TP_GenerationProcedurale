@@ -9,13 +9,25 @@ public class Room : MonoBehaviour {
 	public Vector2Int position = Vector2Int.zero;
 
 	private TilemapGroup _tilemapGroup;
+	public enum ROOMDIFFICULTY
+    {
+		EASY = 0,
+		MEDIUM = 1,
+		HARD = 2
+    }
+
+	public ROOMDIFFICULTY roomDifficulty;
 
 	public static List<Room> allRooms = new List<Room>();
+
+	private int potentialPointToLose = 0;
+	private int potentialPointToGain = 0;
 
     void Awake()
     {
 		_tilemapGroup = GetComponentInChildren<TilemapGroup>();
 		allRooms.Add(this);
+		GetRoomPoints();
 	}
 
 	private void OnDestroy()
@@ -79,5 +91,52 @@ public class Room : MonoBehaviour {
 		}
 
 		return doors;
+    }
+
+	public void GetRoomPoints()
+    {
+		GameObject obj = null;
+
+		for (int i = 0; i < transform.childCount; i++)
+        {
+            for (int j = 0; j < transform.GetChild(i).childCount; j++)
+            {
+				obj = transform.GetChild(i).GetChild(j).gameObject;
+				if (obj.CompareTag("Enemy"))
+				{
+					potentialPointToGain += obj.GetComponent<Enemy>().PointToGive;
+				}
+				else if (obj.CompareTag("PointTrigger"))
+				{ 
+					PointTrigger trigger = obj.GetComponent<PointTrigger>();
+					if(trigger.triggerPointState == PointTrigger.TRIGGER_POINT.ADD)
+                    {
+						potentialPointToGain += trigger.triggerPointValue;
+					}
+					else
+                    {
+						potentialPointToLose += trigger.triggerPointValue;
+					}
+				}
+				else if (obj.CompareTag("PointBlocker"))
+				{
+					PointBlocker blocker = obj.GetComponent<PointBlocker>();
+					if(blocker.takePointFromPlayer)
+                    {
+						potentialPointToLose += blocker.doorValueIfLocked;
+					}
+				}
+            }
+        }
+    }
+
+	public int GetPotentialLoss()
+    {
+		return potentialPointToLose;
+    }
+
+	public int GetPotentialPointWin()
+    {
+		return potentialPointToGain;
     }
 }
