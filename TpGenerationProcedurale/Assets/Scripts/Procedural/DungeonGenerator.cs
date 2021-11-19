@@ -214,7 +214,7 @@ namespace DungeonGenerator
                     {
                         ConnectionNode connection = new ConnectionNode(Orientation,
                             roomFrom,
-                            new RoomNode(new Vector2Int(roomFrom.Position.x, roomFrom.Position.y + Instance.ROOMSIZE.y), type, 0, isPrimary),
+                            new RoomNode(new Vector2Int(roomFrom.Position.x, roomFrom.Position.y + Instance.ROOMSIZE.y), type, difficulty, isPrimary),
                             hasLock,
                             cost,
                             pathIsSecret
@@ -225,7 +225,7 @@ namespace DungeonGenerator
                     }
                 case ConnectionNode.Orientation.South:
                     {
-                        ConnectionNode connection = new ConnectionNode(Orientation, roomFrom, new RoomNode(new Vector2Int(roomFrom.Position.x, roomFrom.Position.y - Instance.ROOMSIZE.y), type, 0, isPrimary), hasLock,
+                        ConnectionNode connection = new ConnectionNode(Orientation, roomFrom, new RoomNode(new Vector2Int(roomFrom.Position.x, roomFrom.Position.y - Instance.ROOMSIZE.y), type, difficulty, isPrimary), hasLock,
                             cost,
                             pathIsSecret
                             );
@@ -235,7 +235,7 @@ namespace DungeonGenerator
                     }
                 case ConnectionNode.Orientation.West:
                     {
-                        ConnectionNode connection = new ConnectionNode(Orientation, roomFrom, new RoomNode(new Vector2Int(roomFrom.Position.x - Instance.ROOMSIZE.x, roomFrom.Position.y), type, 0, isPrimary), hasLock,
+                        ConnectionNode connection = new ConnectionNode(Orientation, roomFrom, new RoomNode(new Vector2Int(roomFrom.Position.x - Instance.ROOMSIZE.x, roomFrom.Position.y), type, difficulty, isPrimary), hasLock,
                             cost,
                             pathIsSecret
                             );
@@ -245,7 +245,7 @@ namespace DungeonGenerator
                     }
                 case ConnectionNode.Orientation.East:
                     {
-                        ConnectionNode connection = new ConnectionNode(Orientation, roomFrom, new RoomNode(new Vector2Int(roomFrom.Position.x + Instance.ROOMSIZE.x, roomFrom.Position.y), type, 0, isPrimary), hasLock,
+                        ConnectionNode connection = new ConnectionNode(Orientation, roomFrom, new RoomNode(new Vector2Int(roomFrom.Position.x + Instance.ROOMSIZE.x, roomFrom.Position.y), type, difficulty, isPrimary), hasLock,
                             cost,
                             pathIsSecret
                             );
@@ -717,13 +717,13 @@ namespace DungeonGenerator
                                 door.SetState(Door.STATE.SECRET);
                             else if (connectionNode.Value.HasLock)
                             {
-                                door.SetIsPrimaryPath();
-                                door.SetDoorCostIfPrimary(hasHadPrimaryDoor);
-                                lastDoorScoreToPass = door.GetDoorValueIfLocked();
-                                if (!hasHadPrimaryDoor)
+                                if (room.IsPrimary && connectionNode.Value.DestinationRoom.IsPrimary
+                                    && lastPrimaryNodeWithDoor.Position != connectionNode.Value.DestinationRoom.Position)
                                 {
                                     door.SetIsPrimaryPath();
                                     door.SetDoorCostIfPrimary(hasHadPrimaryDoor);
+                                    lastDoorScoreToPass = door.GetDoorValueIfLocked();
+
                                     if (!hasHadPrimaryDoor)
                                     {
                                         firstDoorIndex = roomIndex;
@@ -740,6 +740,7 @@ namespace DungeonGenerator
                                     && lastPrimaryNodeWithDoor.Position == connectionNode.Value.DestinationRoom.Position)
                                 {
                                     scoreToThisPath -= lastDoorScoreToPass;
+                                    door.scoreText.gameObject.SetActive(false);
                                 }
                                 else if (!room.IsPrimary
                                     && lastPrimaryNodeWithDoor.Position != connectionNode.Value.DestinationRoom.Position)

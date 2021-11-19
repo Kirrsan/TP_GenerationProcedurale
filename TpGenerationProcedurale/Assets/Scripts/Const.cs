@@ -62,10 +62,10 @@ public static class Utils {
 	{
 		switch (orientation)
 		{
-			case ORIENTATION.NORTH: return new Vector2Int(0,1);
-			case ORIENTATION.EAST: return new Vector2Int(1, 0);
-			case ORIENTATION.SOUTH: return new Vector2Int(0, -1);
-			case ORIENTATION.WEST: return new Vector2Int(-1, 0);
+			case ORIENTATION.NORTH: return new Vector2Int(0,9);
+			case ORIENTATION.EAST: return new Vector2Int(11, 0);
+			case ORIENTATION.SOUTH: return new Vector2Int(0, -9);
+			case ORIENTATION.WEST: return new Vector2Int(-11, 0);
 			default: return new Vector2Int(0, 0);
 		}
 	}
