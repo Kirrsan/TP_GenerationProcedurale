@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class Spike : MonoBehaviour
 {
-
 	private void OnTriggerStay2D(Collider2D collision)
 	{
 		if (Player.Instance == null)
@@ -14,5 +13,4 @@ public class Spike : MonoBehaviour
 
 		Player.Instance.ApplyHit(null);
 	}
-
 }

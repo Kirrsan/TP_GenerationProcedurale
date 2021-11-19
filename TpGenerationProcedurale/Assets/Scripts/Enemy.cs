@@ -380,6 +380,10 @@ public class Enemy : MonoBehaviour
     public void SetupLevel()
     {
         CreaturesPoints = Mathf.FloorToInt(_room.GetPotentialPointWithShortestPathToRoom() * Random.Range(0.75f, 1.25f));
+        if(CreaturesPoints <= 0)
+        {
+            CreaturesPoints = 1;
+        }
         CreaturePointText.text = CreaturesPoints.ToString();
         SetupEnemy();
     }
