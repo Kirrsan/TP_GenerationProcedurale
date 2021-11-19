@@ -100,12 +100,24 @@ namespace DungeonGenerator
         [Header("System")] public int extraTriesClamp = 10;
         public GameObject prefabStart;
         public GameObject prefabEnd;
-        public List<GameObject> prefabClassic = new List<GameObject>(3);
-        public List<GameObject> prefabTrap = new List<GameObject>(3);
-        public List<GameObject> prefabDanger = new List<GameObject>(3);
-        public List<GameObject> prefabSafe = new List<GameObject>(3);
-        public List<GameObject> prefabShop = new List<GameObject>(3);
-        public List<GameObject> prefabSecret = new List<GameObject>(3);
+        public List<GameObject> prefabEasyClassic = new List<GameObject>();
+        public List<GameObject> prefabMediumClassic = new List<GameObject>();
+        public List<GameObject> prefabHardClassic = new List<GameObject>();
+        public List<GameObject> prefabEasyTrap = new List<GameObject>();
+        public List<GameObject> prefabMediumTrap = new List<GameObject>();
+        public List<GameObject> prefabHardTrap = new List<GameObject>();
+        public List<GameObject> prefabEasyDanger = new List<GameObject>();
+        public List<GameObject> prefabMediumDanger = new List<GameObject>();
+        public List<GameObject> prefabHardDanger = new List<GameObject>();
+        public List<GameObject> prefabEasySafe = new List<GameObject>();
+        public List<GameObject> prefabMediumSafe = new List<GameObject>();
+        public List<GameObject> prefabHardSafe = new List<GameObject>();
+        public List<GameObject> prefabEasyShop = new List<GameObject>();
+        public List<GameObject> prefabMediumShop = new List<GameObject>();
+        public List<GameObject> prefabHardShop = new List<GameObject>();
+        public List<GameObject> prefabEasySecret = new List<GameObject>();
+        public List<GameObject> prefabMediumSecret = new List<GameObject>();
+        public List<GameObject> prefabHardSecret = new List<GameObject>();
 
 
 
