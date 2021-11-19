@@ -18,7 +18,7 @@ public class ShopTile : MonoBehaviour
     public GameObject healthObj;
     public GameObject speedObj;
 
-    public int itemStatMultiplier = 2;
+    public float itemStatMultiplier = 2;
     public int itemCost = 50;
 
     public Text priceText;
