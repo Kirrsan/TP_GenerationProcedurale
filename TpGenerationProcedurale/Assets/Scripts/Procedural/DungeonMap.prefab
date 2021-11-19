@@ -62,9 +62,9 @@ MonoBehaviour:
   - {fileID: 6831930824602547314, guid: 859888ddc0d0c5043a0b7c2402851e93, type: 3}
   - {fileID: 7739836648753399684, guid: 80647b26b09f5284dae46dcdc44249df, type: 3}
   prefabDanger:
-  - {fileID: 364269013713837659, guid: 5c3fb0a66ffe6a341a016b98c146c788, type: 3}
-  - {fileID: 364269013713837659, guid: 5c3fb0a66ffe6a341a016b98c146c788, type: 3}
-  - {fileID: 364269013713837659, guid: 5c3fb0a66ffe6a341a016b98c146c788, type: 3}
+  - {fileID: 6378307772181666128, guid: dca0ed56e6a6b254db541f4cb66dea41, type: 3}
+  - {fileID: 663256098434900587, guid: 7740f7748eac0e34089e1111e0807abc, type: 3}
+  - {fileID: 3252079143756579541, guid: a2f8ea750d506684d95cd9e190dce387, type: 3}
   prefabSafe:
   - {fileID: 364269013713837659, guid: 5c3fb0a66ffe6a341a016b98c146c788, type: 3}
   - {fileID: 8654517854407297031, guid: b3d3cda177ef08b4fa9b54f2dfcc8786, type: 3}
