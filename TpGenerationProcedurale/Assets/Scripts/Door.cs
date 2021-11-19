@@ -77,7 +77,7 @@ public class Door : MonoBehaviour {
 		{
 			SetState(STATE.SECRET);
 		}
-	}
+    }
 
     public void OnTriggerEnter2D(Collider2D collision)
     {
@@ -238,7 +238,9 @@ public class Door : MonoBehaviour {
 
     public void SetDoorCostIfPrimary(bool hadPrimaryDoorBefore)
     {
-        int index = Room.allRooms.FindIndex(r => r.position == _room.position);
+        int roomIndex = Room.allRooms.FindIndex(r => r.position == _room.position);
+        int index = roomIndex;
+
 
         int possibleLoss = 0;
         int possibleGain = 0;
@@ -377,6 +379,11 @@ public class Door : MonoBehaviour {
     public int GetDoorValueIfLocked()
     {
         return doorValueIfLocked;
+    }
+
+    public void SetDoorValue(int newValue)
+    {
+        doorValueIfLocked = newValue;
     }
 
 }

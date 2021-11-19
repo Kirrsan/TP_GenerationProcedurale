@@ -263,7 +263,7 @@ public class Player : MonoBehaviour {
         _lastHitTime = Time.time;
 
         //reduces points by the amount of damage
-        life -= attack != null ? attack.damages : 1;
+        life -= attack != null ? attack.damages : Mathf.FloorToInt(_playerPoint * 0.2f);
 
         //see how defense works
 

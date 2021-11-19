@@ -705,13 +705,13 @@ namespace DungeonGenerator
                                 door.SetState(Door.STATE.SECRET);
                             else if (connectionNode.Value.HasLock)
                             {
-                                door.SetIsPrimaryPath();
-                                door.SetDoorCostIfPrimary(hasHadPrimaryDoor);
-                                lastDoorScoreToPass = door.GetDoorValueIfLocked();
-                                if (!hasHadPrimaryDoor)
+                                if (room.IsPrimary && connectionNode.Value.DestinationRoom.IsPrimary
+                                    && lastPrimaryNodeWithDoor.Position != connectionNode.Value.DestinationRoom.Position)
                                 {
                                     door.SetIsPrimaryPath();
                                     door.SetDoorCostIfPrimary(hasHadPrimaryDoor);
+                                    lastDoorScoreToPass = door.GetDoorValueIfLocked();
+
                                     if (!hasHadPrimaryDoor)
                                     {
                                         firstDoorIndex = roomIndex;
@@ -728,6 +728,7 @@ namespace DungeonGenerator
                                     && lastPrimaryNodeWithDoor.Position == connectionNode.Value.DestinationRoom.Position)
                                 {
                                     scoreToThisPath -= lastDoorScoreToPass;
+                                    door.scoreText.gameObject.SetActive(false);
                                 }
                                 else if (!room.IsPrimary
                                     && lastPrimaryNodeWithDoor.Position != connectionNode.Value.DestinationRoom.Position)

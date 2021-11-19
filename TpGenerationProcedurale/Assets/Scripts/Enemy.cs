@@ -136,7 +136,7 @@ public class Enemy : MonoBehaviour
         {
             case DIFFICULTY.EASY:
                 life = easyBaseHealth + (CreaturesPoints - 1) * easyHealthPerLevel;
-                attackDamage = easyBaseDamage + (CreaturesPoints - 1) * easyHealthPerLevel;
+                attackDamage = easyBaseDamage + (CreaturesPoints - 1) * easyDamagePerLevel;
                 break;
             case DIFFICULTY.MEDIUM:
                 life = mediumBaseHealth + (CreaturesPoints - 1) * mediumHealthPerLevel;
