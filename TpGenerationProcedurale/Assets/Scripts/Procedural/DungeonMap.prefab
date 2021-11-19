@@ -46,6 +46,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   nbOfRoomsClamp: 30
   difficultyBudget: 20
+  nbOfRoomsClampFirstSecondaryPath: 5
+  difficultyBudgetFirstSecondaryPath: 10
+  nbOfRoomsClampSecondSecondaryPath: 5
+  difficultyBudgetSecondSecondaryPath: 10
   extraTriesClamp: 10
   prefabStart: {fileID: 3792475177106313155, guid: dbd176034832ebe4ead5140341ea30dc, type: 3}
   prefabEnd: {fileID: 7559102900497746808, guid: 8b0062dcb6a669d4692dbde3a5387136, type: 3}
@@ -66,13 +70,14 @@ MonoBehaviour:
   - {fileID: 8654517854407297031, guid: b3d3cda177ef08b4fa9b54f2dfcc8786, type: 3}
   - {fileID: 2877156955371454143, guid: 7f57acd6b5e328447b5385149df26ae7, type: 3}
   prefabShop:
-  - {fileID: 364269013713837659, guid: 5c3fb0a66ffe6a341a016b98c146c788, type: 3}
-  - {fileID: 364269013713837659, guid: 5c3fb0a66ffe6a341a016b98c146c788, type: 3}
-  - {fileID: 364269013713837659, guid: 5c3fb0a66ffe6a341a016b98c146c788, type: 3}
+  - {fileID: 4160157995697246691, guid: 128eec76f71615c49a8b53657015058f, type: 3}
+  - {fileID: 4160157995697246691, guid: 128eec76f71615c49a8b53657015058f, type: 3}
+  - {fileID: 4160157995697246691, guid: 128eec76f71615c49a8b53657015058f, type: 3}
   prefabSecret:
   - {fileID: 2795292889052527025, guid: d793820a87946694a9904f1143f8ace5, type: 3}
   - {fileID: 2795292889052527025, guid: d793820a87946694a9904f1143f8ace5, type: 3}
   - {fileID: 2795292889052527025, guid: d793820a87946694a9904f1143f8ace5, type: 3}
+  roomPrefab: []
   ROOMSIZE: {x: 11, y: 9}
   maxLevelSize:
     x: 0
