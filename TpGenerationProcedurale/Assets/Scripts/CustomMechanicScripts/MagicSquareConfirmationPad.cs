@@ -32,7 +32,21 @@ public class MagicSquareConfirmationPad : MonoBehaviour
                 if(door.State == Door.STATE.SECRET)
                 {
                     door.SetState(Door.STATE.OPEN);
+
+                    int index = Room.allRooms.FindIndex(r => r.position == currentRoom.position);
+                    doorList = Room.allRooms[index + 1].GetAllDoorInRoom();
                     _hasOpenedDoor = true;
+                    break;
+                }
+            }
+
+            foreach (var door in doorList)
+            {
+                if (door.State == Door.STATE.SECRET)
+                {
+                    door.SetState(Door.STATE.OPEN);
+                    _hasOpenedDoor = true;
+                    break;
                 }
             }
 

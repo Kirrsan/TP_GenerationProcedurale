@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class PointBlocker : MonoBehaviour
 {
@@ -29,6 +30,7 @@ public class PointBlocker : MonoBehaviour
     public STATE State { get { return _state; } }
     public GameObject closedGo = null;
     public GameObject openGo = null;
+    public Text textScore;
 
     public int doorValueIfLocked = 0;
     public bool takePointFromPlayer = false;
@@ -43,6 +45,27 @@ public class PointBlocker : MonoBehaviour
         {
             SetState(STATE.OPEN);
         }
+
+        string comparisonCharacter = "";
+        switch (_pointState)
+        {
+            case POINT_STATE.INFERIOR:
+                comparisonCharacter = "<";
+                break;
+            case POINT_STATE.INFERIOR_EQUAL:
+                comparisonCharacter = "<=";
+                break;
+            case POINT_STATE.EQUAL:
+                comparisonCharacter = "=";
+                break;
+            case POINT_STATE.SUPERIOR:
+                comparisonCharacter = ">";
+                break;
+            case POINT_STATE.SUPERIOR_EQUAL:
+                comparisonCharacter = ">=";
+                break;
+        }
+        textScore.text = comparisonCharacter + doorValueIfLocked.ToString();
     }
 
     public void OnTriggerEnter2D(Collider2D collision)

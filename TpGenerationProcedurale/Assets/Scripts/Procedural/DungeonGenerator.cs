@@ -89,6 +89,14 @@ namespace DungeonGenerator
         public static DungeonGenerator Instance { get; private set; }
         [Range(3, 2500)] public int nbOfRoomsClamp = 5;
         [Range(0, 9999)] public int difficultyBudget = 10;
+
+        [Range(3, 100)] public int nbOfRoomsClampFirstSecondaryPath = 5;
+        [Range(0, 9999)] public int difficultyBudgetFirstSecondaryPath = 10;
+
+        [Range(3, 100)] public int nbOfRoomsClampSecondSecondaryPath = 5;
+        [Range(0, 9999)] public int difficultyBudgetSecondSecondaryPath = 10;
+
+
         [Header("System")] public int extraTriesClamp = 10;
         public GameObject prefabStart;
         public GameObject prefabEnd;
@@ -99,11 +107,7 @@ namespace DungeonGenerator
         public List<GameObject> prefabShop = new List<GameObject>(3);
         public List<GameObject> prefabSecret = new List<GameObject>(3);
 
-        [Range(3, 100)] public int nbOfRoomsClampFirstSecondaryPath = 5;
-        [Range(0, 9999)] public int difficultyBudgetFirstSecondaryPath = 10;
 
-        [Range(3, 100)] public int nbOfRoomsClampSecondSecondaryPath = 5;
-        [Range(0, 9999)] public int difficultyBudgetSecondSecondaryPath = 10;
 
 
 

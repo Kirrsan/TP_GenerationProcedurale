@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
+using UnityEngine.UI;
 
 public class Door : MonoBehaviour {
 
@@ -35,6 +36,7 @@ public class Door : MonoBehaviour {
     public GameObject openGo = null;
     public GameObject wallGo = null;
     public GameObject secretGo = null;
+    public Text scoreText;
 
     private int doorValueIfLocked = 0;
     public bool takePointFromPlayer = true;
@@ -46,7 +48,7 @@ public class Door : MonoBehaviour {
 	public void Awake()
 	{
 		_room = GetComponentInParent<Room>();
-        Bounds roomBounds = _room.GetWorldRoomBounds();
+        Bounds roomBounds = _room.GetLocalRoomBounds();
         float ratio = roomBounds.size.x / roomBounds.size.y;
         Vector2 dir = transform.position - (_room.transform.position + roomBounds.center);
         if (Mathf.Abs(dir.x) > Mathf.Abs(dir.y) * ratio)
@@ -108,7 +110,7 @@ public class Door : MonoBehaviour {
         }
     }
 
-	private Room GetNextRoom()
+	public Room GetNextRoom()
 	{
 		Vector2Int dir = Utils.OrientationToDir(_orientation);
 		Room nextRoom = Room.allRooms.Find(x => x.position == _room.position + dir);
@@ -167,16 +169,31 @@ public class Door : MonoBehaviour {
         switch(_state)
         {
             case STATE.CLOSED:
-                if (closedGo) { closedGo.SetActive(true); }
+                if (closedGo) 
+                { 
+                    closedGo.SetActive(true); 
+                }
                 break;
             case STATE.OPEN:
-                if (openGo) { openGo.SetActive(true); }
+                if (openGo) 
+                { 
+                    openGo.SetActive(true);
+                    scoreText.gameObject.SetActive(false);
+                }
                 break;
             case STATE.WALL:
-                if (wallGo) { wallGo.SetActive(true); }
+                if (wallGo) 
+                { 
+                    wallGo.SetActive(true);
+                    scoreText.gameObject.SetActive(false);
+                }
                 break;
             case STATE.SECRET:
-                if (secretGo) { secretGo.SetActive(true); }
+                if (secretGo) 
+                { 
+                    secretGo.SetActive(true);
+                    scoreText.gameObject.SetActive(false);
+                }
                 break;
         }
     }
@@ -248,8 +265,38 @@ public class Door : MonoBehaviour {
                 }
             }
         }
-        doorValueIfLocked = possibleGain - possibleLoss - 1;
+        if(possibleGain - possibleLoss - 1 > 0)
+        {
+            doorValueIfLocked = possibleGain - possibleLoss - 1;
+        }
+        else
+        {
+            doorValueIfLocked = 0;
+        }
         _pointState = POINT_STATE.ANY;
+
+
+        string comparisonCharacter = "";
+        switch (_pointState)
+        {
+            case POINT_STATE.INFERIOR:
+                comparisonCharacter = "<";
+                break;
+            case POINT_STATE.INFERIOR_EQUAL:
+                comparisonCharacter = "<=";
+                break;
+            case POINT_STATE.EQUAL:
+                comparisonCharacter = "=";
+                break;
+            case POINT_STATE.SUPERIOR:
+                comparisonCharacter = ">";
+                break;
+            case POINT_STATE.SUPERIOR_EQUAL:
+                comparisonCharacter = ">=";
+                break;
+        }
+
+        scoreText.text = comparisonCharacter + doorValueIfLocked.ToString();
     }
 
     public void SetDoorCostIfSecondaryPath(List<DungeonGenerator.RoomNode?> roomNodes)
@@ -272,9 +319,37 @@ public class Door : MonoBehaviour {
         {
             RecursiveNodeCheck(OriginalNode.Connections[i].Value.DestinationRoom, OriginalNode, ref possibleLoss, ref possibleGain);
         }
-
-        doorValueIfLocked = (possibleGain - possibleLoss) /2;
+        if ((possibleGain - possibleLoss) / 2 > 0)
+        {
+            doorValueIfLocked = (possibleGain - possibleLoss) /2;
+        }
+        else
+        {
+            doorValueIfLocked = 0;
+        }
         _pointState = POINT_STATE.SUPERIOR_EQUAL;
+
+        string comparisonCharacter = "";
+        switch (_pointState)
+        {
+            case POINT_STATE.INFERIOR:
+                comparisonCharacter = "<";
+                break;
+            case POINT_STATE.INFERIOR_EQUAL:
+                comparisonCharacter = "<=";
+                break;
+            case POINT_STATE.EQUAL:
+                comparisonCharacter = "=";
+                break;
+            case POINT_STATE.SUPERIOR:
+                comparisonCharacter = ">";
+                break;
+            case POINT_STATE.SUPERIOR_EQUAL:
+                comparisonCharacter = ">=";
+                break;
+        }
+
+        scoreText.text = comparisonCharacter + doorValueIfLocked.ToString();
     }
 
     private void RecursiveNodeCheck(DungeonGenerator.RoomNode node, DungeonGenerator.RoomNode lastNode, ref int possibleLoss, ref int possibleGain)

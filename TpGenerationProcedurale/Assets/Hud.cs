@@ -11,6 +11,7 @@ public class Hud : MonoBehaviour
     public GameObject heartPrefab;
 
     public Slider healthSlider;
+    public Text healthText;
 
     private void Awake()
     {
@@ -25,6 +26,7 @@ public class Hud : MonoBehaviour
         if (healthSlider.value == Player.Instance.life) { return; }
 
         healthSlider.value = Player.Instance.life;
+        healthText.text = healthSlider.value.ToString() + "/" + healthSlider.maxValue.ToString();
 
         //while (heartBar.childCount > 0 && heartBar.childCount > Player.Instance.life)
         //{
@@ -38,6 +40,7 @@ public class Hud : MonoBehaviour
     public void SetSliderValuesToPointsValues(int pointValue)
     {
         healthSlider.maxValue = pointValue;
+        healthText.text = healthSlider.value.ToString() + "/" + healthSlider.maxValue.ToString();
     }
 
 
