@@ -98,14 +98,26 @@ namespace DungeonGenerator
 
 
         [Header("System")] public int extraTriesClamp = 10;
-        public GameObject prefabStart;
+        public List<GameObject> prefabStart = new List<GameObject>();
         public GameObject prefabEnd;
-        public List<GameObject> prefabClassic = new List<GameObject>(3);
-        public List<GameObject> prefabTrap = new List<GameObject>(3);
-        public List<GameObject> prefabDanger = new List<GameObject>(3);
-        public List<GameObject> prefabSafe = new List<GameObject>(3);
-        public List<GameObject> prefabShop = new List<GameObject>(3);
-        public List<GameObject> prefabSecret = new List<GameObject>(3);
+        public List<GameObject> prefabEasyClassic = new List<GameObject>();
+        public List<GameObject> prefabMediumClassic = new List<GameObject>();
+        public List<GameObject> prefabHardClassic = new List<GameObject>();
+        public List<GameObject> prefabEasyTrap = new List<GameObject>();
+        public List<GameObject> prefabMediumTrap = new List<GameObject>();
+        public List<GameObject> prefabHardTrap = new List<GameObject>();
+        public List<GameObject> prefabEasyDanger = new List<GameObject>();
+        public List<GameObject> prefabMediumDanger = new List<GameObject>();
+        public List<GameObject> prefabHardDanger = new List<GameObject>();
+        public List<GameObject> prefabEasySafe = new List<GameObject>();
+        public List<GameObject> prefabMediumSafe = new List<GameObject>();
+        public List<GameObject> prefabHardSafe = new List<GameObject>();
+        public List<GameObject> prefabEasyShop = new List<GameObject>();
+        public List<GameObject> prefabMediumShop = new List<GameObject>();
+        public List<GameObject> prefabHardShop = new List<GameObject>();
+        public List<GameObject> prefabEasySecret = new List<GameObject>();
+        public List<GameObject> prefabMediumSecret = new List<GameObject>();
+        public List<GameObject> prefabHardSecret = new List<GameObject>();
 
 
 
@@ -290,8 +302,8 @@ namespace DungeonGenerator
                 previousRoom = latestSpawnedRoom;
                 float sampleRoomType = RandomFloat;
                 float sampleDifficulty = RandomFloat;
-                
-                if(roomsSpawned > (1/3) * roomBudget)
+
+                if (roomsSpawned > (1 / 3) * roomBudget)
                 {
                     weightEasy = 0.15f;
                     weightMedium = 0.70f;
@@ -382,11 +394,11 @@ namespace DungeonGenerator
                     roomsSpawned++;
 
                     //Spawn first combat room
-                    latestSpawnedRoom = BuildAdjacentRoom(latestSpawnedRoom.Value, ConnectionNode.Orientation.East, RoomNode.RoomType.Classic, RoomNode.RoomDifficulty.Easy, isFirstPath).DestinationRoom;
+                    latestSpawnedRoom = BuildAdjacentRoom(latestSpawnedRoom.Value, ConnectionNode.Orientation.East, RoomNode.RoomType.Start, RoomNode.RoomDifficulty.Medium, isFirstPath).DestinationRoom;
                     rooms.Add(latestSpawnedRoom);
                     roomsSpawned++;
 
-                    latestSpawnedRoom = BuildAdjacentRoom(latestSpawnedRoom.Value, ConnectionNode.Orientation.East, RoomNode.RoomType.Safe, RoomNode.RoomDifficulty.Easy, isFirstPath, true, 5).DestinationRoom;
+                    latestSpawnedRoom = BuildAdjacentRoom(latestSpawnedRoom.Value, ConnectionNode.Orientation.East, RoomNode.RoomType.Start, RoomNode.RoomDifficulty.Hard, isFirstPath, true, 5).DestinationRoom;
                     rooms.Add(latestSpawnedRoom);
                     roomsSpawned++;
                     startingSequenceSpawned = true;
@@ -550,13 +562,13 @@ namespace DungeonGenerator
             if (BuildPrimaryPath(Vector2Int.zero, Instance.nbOfRoomsClamp, true))
             {
                 RoomNode secondaryPathStart = rooms[3].Value;
-                
+
                 if (BuildPrimaryPath(secondaryPathStart.Position, Instance.nbOfRoomsClampFirstSecondaryPath))
                 {
                     RoomNode lastroom = rooms[rooms.Count - 1].Value;
                     lastroom.Type = RoomNode.RoomType.Secret;
                     rooms[rooms.Count - 1] = lastroom;
-                    rooms.Add(BuildAdjacentRoom(lastroom, GenerateValidOrientation(lastroom), RoomNode.RoomType.Merchant, RoomNode.RoomDifficulty.Easy,false,false,0,true).DestinationRoom);  
+                    rooms.Add(BuildAdjacentRoom(lastroom, GenerateValidOrientation(lastroom), RoomNode.RoomType.Merchant, RoomNode.RoomDifficulty.Easy, false, false, 0, true).DestinationRoom);
                     secondaryPathStart = rooms[7].Value;
                     if (BuildPrimaryPath(secondaryPathStart.Position, Instance.nbOfRoomsClampSecondSecondaryPath))
                     {
@@ -621,37 +633,114 @@ namespace DungeonGenerator
                 {
                     case RoomNode.RoomType.Start:
                         {
-                            roomGO = Instantiate(prefabStart);
+                            switch (room.Difficulty)
+                            {
+                                case RoomNode.RoomDifficulty.Easy:
+                                    roomGO = Instantiate(prefabStart[0]);
+                                    break;
+                                case RoomNode.RoomDifficulty.Medium:
+                                    roomGO = Instantiate(prefabStart[1]);
+                                    break;
+                                case RoomNode.RoomDifficulty.Hard:
+                                    roomGO = Instantiate(prefabStart[2]);
+                                    break;
+                            }
                         }
                         break;
                     case RoomNode.RoomType.Classic:
                         {
-                            roomGO = Instantiate(prefabClassic[(int)room.Difficulty]);
+                            switch (room.Difficulty)
+                            {
+                                case RoomNode.RoomDifficulty.Easy:
+                                    roomGO = Instantiate(prefabEasyClassic[Random.Range(0, prefabEasyClassic.Count - 1)]);
+                                    break;
+                                case RoomNode.RoomDifficulty.Medium:
+                                    roomGO = Instantiate(prefabMediumClassic[Random.Range(0, prefabMediumClassic.Count - 1)]);
+                                    break;
+                                case RoomNode.RoomDifficulty.Hard:
+                                    roomGO = Instantiate(prefabHardClassic[Random.Range(0, prefabEasyClassic.Count - 1)]);
+                                    break;
+                            }
                         }
                         break;
                     case RoomNode.RoomType.Trap:
                         {
-                            roomGO = Instantiate(prefabTrap[(int)room.Difficulty]);
+                            switch (room.Difficulty)
+                            {
+                                case RoomNode.RoomDifficulty.Easy:
+                                    roomGO = Instantiate(prefabEasyTrap[Random.Range(0, prefabEasyTrap.Count - 1)]);
+                                    break;
+                                case RoomNode.RoomDifficulty.Medium:
+                                    roomGO = Instantiate(prefabMediumTrap[Random.Range(0, prefabMediumTrap.Count - 1)]);
+                                    break;
+                                case RoomNode.RoomDifficulty.Hard:
+                                    roomGO = Instantiate(prefabHardTrap[Random.Range(0, prefabEasyTrap.Count - 1)]);
+                                    break;
+                            }
                         }
                         break;
                     case RoomNode.RoomType.Danger:
                         {
-                            roomGO = Instantiate(prefabDanger[(int)room.Difficulty]);
+                            switch (room.Difficulty)
+                            {
+                                case RoomNode.RoomDifficulty.Easy:
+                                    roomGO = Instantiate(prefabEasyDanger[Random.Range(0, prefabEasyDanger.Count - 1)]);
+                                    break;
+                                case RoomNode.RoomDifficulty.Medium:
+                                    roomGO = Instantiate(prefabMediumDanger[Random.Range(0, prefabMediumDanger.Count - 1)]);
+                                    break;
+                                case RoomNode.RoomDifficulty.Hard:
+                                    roomGO = Instantiate(prefabHardDanger[Random.Range(0, prefabEasyDanger.Count - 1)]);
+                                    break;
+                            }
                         }
                         break;
                     case RoomNode.RoomType.Safe:
                         {
-                            roomGO = Instantiate(prefabSafe[(int)room.Difficulty]);
+                            switch (room.Difficulty)
+                            {
+                                case RoomNode.RoomDifficulty.Easy:
+                                    roomGO = Instantiate(prefabEasySafe[Random.Range(0, prefabEasySafe.Count - 1)]);
+                                    break;
+                                case RoomNode.RoomDifficulty.Medium:
+                                    roomGO = Instantiate(prefabMediumSafe[Random.Range(0, prefabMediumSafe.Count - 1)]);
+                                    break;
+                                case RoomNode.RoomDifficulty.Hard:
+                                    roomGO = Instantiate(prefabHardSafe[Random.Range(0, prefabHardSafe.Count - 1)]);
+                                    break;
+                            }
                         }
                         break;
                     case RoomNode.RoomType.Merchant:
                         {
-                            roomGO = Instantiate(prefabShop[(int)room.Difficulty]);
+                            switch (room.Difficulty)
+                            {
+                                case RoomNode.RoomDifficulty.Easy:
+                                    roomGO = Instantiate(prefabEasyShop[Random.Range(0, prefabEasyShop.Count - 1)]);
+                                    break;
+                                case RoomNode.RoomDifficulty.Medium:
+                                    roomGO = Instantiate(prefabMediumShop[Random.Range(0, prefabMediumShop.Count - 1)]);
+                                    break;
+                                case RoomNode.RoomDifficulty.Hard:
+                                    roomGO = Instantiate(prefabHardShop[Random.Range(0, prefabEasyShop.Count - 1)]);
+                                    break;
+                            }
                         }
                         break;
                     case RoomNode.RoomType.Secret:
                         {
-                            roomGO = Instantiate(prefabSecret[(int)room.Difficulty]);
+                            switch (room.Difficulty)
+                            {
+                                case RoomNode.RoomDifficulty.Easy:
+                                    roomGO = Instantiate(prefabEasySecret[Random.Range(0, prefabEasySecret.Count - 1)]);
+                                    break;
+                                case RoomNode.RoomDifficulty.Medium:
+                                    roomGO = Instantiate(prefabMediumSecret[Random.Range(0, prefabMediumSecret.Count - 1)]);
+                                    break;
+                                case RoomNode.RoomDifficulty.Hard:
+                                    roomGO = Instantiate(prefabHardSecret[Random.Range(0, prefabEasySecret.Count - 1)]);
+                                    break;
+                            }
                         }
                         break;
                     case RoomNode.RoomType.End:
@@ -767,10 +856,10 @@ namespace DungeonGenerator
                 }
                 else
                 {
-                    if(roomIndex > nbOfRoomsClamp && roomIndex <= nbOfRoomsClamp + nbOfRoomsClampFirstSecondaryPath)
+                    if (roomIndex > nbOfRoomsClamp && roomIndex <= nbOfRoomsClamp + nbOfRoomsClampFirstSecondaryPath)
                     {
                         //firstpath originates from room[3]
-                        if(!hasGottenToFirstSecondaryPath)
+                        if (!hasGottenToFirstSecondaryPath)
                         {
                             hasGottenToFirstSecondaryPath = true;
                             scoreToThisPath = Room.allRooms[3].GetPotentialPointWithShortestPathToRoom();
